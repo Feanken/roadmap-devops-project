@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 # Project 01 — Server Performance Stats
 
 ## 1. Overview
