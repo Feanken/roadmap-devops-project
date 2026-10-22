@@ -30,69 +30,64 @@ Kita perlu memonitoring karena untuk memastikan bahwa serverkita dapat berjalaan
 
 ## 3. How It Works
 
-Jadi bash itu bekerja dengan cara memproses bahasa teks kita menjadi linux. jadi bash digunkaan untuk menjalankan beberapa script atau perintah sekaligus. 
+Bash adalah shell yang digunakan untuk membaca dan menjalankan perintah pada sistem Linux.
+
+Dalam project ini, Bash Script digunakan untuk menjalankan beberapa Linux command secara otomatis sehingga kita tidak perlu mengetik setiap command satu per satu.
 
 **Workflow:**
 
-1. Execute the Bash script.
-2. Collect CPU usage information.
-3. Collect memory and disk usage.
-4. Identify processes consuming the most resources.
-5. Display the results in the terminal.
+1. User menjalankan server-stats.sh.
+2. Bash membaca dan menjalankan perintah di dalam script.
+3. Linux command mengambil informasi CPU, RAM, disk, dan proses dari sistem.
+4. Output diproses menggunakan command seperti awk, grep, dan head.
+5. Hasil monitoring ditampilkan melalui terminal.
 
 ## 4. Underneath — Technical Concepts
 
-Explain the Linux concepts and commands used in this project.
+Linux menyediakan informasi penggunaan resource seperti CPU, RAM, dan proses melalui sistem, termasuk virtual filesystem `/proc`.
+
+Command Linux digunakan untuk membaca informasi tersebut, kemudian Bash Script menggabungkan beberapa command agar hasil monitoring dapat ditampilkan secara otomatis.
 
 | Command | Purpose |
 |---|---|
-| `top` | Memantau penggunaan CPU, RAM, dan proses secara real Time |
-| `free` | Melihat pengunaan RAM dari total, usage, dan yang tersedia |
-| `df` | Melihat kapasitas filesystem yang digunakan |
-| `ps` | Melihat Proses yang sedang berjalan |
-| `awk` | Mengolah dan memproses teks tertentu dari kolom |
-| `grep` | Mencari Teks tertentu yang mengandung pola atau baris tertentu |
-| `head` | Menampilkan beberapa baris pertama dari file |
+| `top` | Memantau penggunaan CPU, RAM, dan proses secara berkala |
+| `free` | Melihat total, penggunaan, dan ketersediaan RAM |
+| `df` | Melihat kapasitas dan penggunaan filesystem |
+| `ps` | Menampilkan informasi proses yang sedang berjalan |
+| `awk` | Mengolah teks dan mengambil kolom tertentu |
+| `grep` | Mencari baris teks berdasarkan pola tertentu |
+| `head` | Menampilkan beberapa baris pertama dari file atau output command |
 
 **Technical Understanding:**
 
-[Explain how Linux monitors CPU, memory, disk, and running processes.]
+Command seperti `top`, `free`, dan `ps` memperoleh informasi resource dari Linux. `df` mengambil informasi penggunaan filesystem.
+
+Command seperti `awk`, `grep`, dan `head` digunakan untuk menyaring dan mengolah output agar hanya informasi yang diperlukan yang ditampilkan.
+
+Bash berfungsi mengatur eksekusi command-command tersebut dalam satu script.
 
 ## 5. Setup & Usage
 
 **Step 1 — Connect to the server**
 
-[Explain how you access your Huawei Cloud ECS.]
+
+```bash
+ssh root@EIP
+```
 
 **Step 2 — Prepare the Bash script**
 
-[Explain how to create and configure the script.]
+```bash
+nano server-stats.sh
+```
 
 **Step 3 — Execute the script**
 
 ```bash
+bash -n server-stats.sh
 chmod +x server-stats.sh
 ./server-stats.sh
 ```
 
-## 6. Experiment & Results
 
-**Experiment 1 — Normal Server Usage**
 
-[Describe the server's performance under normal conditions.]
-
-![Normal Server Performance](images/normal-performance.png)
-
-**Experiment 2 — CPU Load Test**
-
-[Describe the test procedure and compare CPU usage before and during the test.]
-
-![CPU Load Test](images/cpu-load-test.png)
-
-**Observations:**
-
-[Explain what changed and why.]
-
-=======
-# roadmap-devops-server_performance_stats
->>>>>>> df76f9e4002ddb0d35f4a7c091534c7a31c9a9f0
