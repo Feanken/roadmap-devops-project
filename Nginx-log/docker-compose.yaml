@@ -1,0 +1,10 @@
+
+services:
+  nginx:
+    image: nginx:stable-alpine
+    container_name: nginx-log-lab
+    ports:
+      - "8080:80"
+    volumes:
+      - ./logs:/var/log/nginx
+    restart: unless-stopped

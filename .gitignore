@@ -1,0 +1,19 @@
+# Logs
+*.log
+logs/
+
+# Temporary files
+*.tmp
+*.bak
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# VS Code
+.vscode/
+
+# Environment and secrets
+.env
+.env.*
+!.env.example
