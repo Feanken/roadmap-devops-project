@@ -1,0 +1,10 @@
+# Deployment logs
+logs/
+
+# Temporary files
+*.tmp
+*.bak
+
+# Editor files
+*.swp
+*~
