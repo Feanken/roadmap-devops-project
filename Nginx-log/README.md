@@ -146,3 +146,5 @@ Usage: nginx-log-analyser.sh <nginx-access.log>
 ```
 
 Both conditions terminate the script with exit code `1`.
+
+https://roadmap.sh/projects/nginx-log-analyser
