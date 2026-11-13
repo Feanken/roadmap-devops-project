@@ -1,0 +1,19 @@
+
+FROM ubuntu:24.04
+
+RUN apt-get update && \
+    apt-get install -y --no-install-recommends openssh-server && \
+    mkdir -p /run/sshd && \
+    rm -rf /var/lib/apt/lists/*
+
+RUN useradd -m -s /bin/bash devops && \
+    mkdir -p /home/devops/.ssh && \
+    chmod 700 /home/devops/.ssh && \
+    chown -R devops:devops /home/devops/.ssh
+
+RUN printf 'PasswordAuthentication no\nPermitRootLogin no\nPubkeyAuthentication yes\n' \
+    > /etc/ssh/sshd_config.d/99-devops-lab.conf
+
+EXPOSE 22
+
+CMD ["/usr/sbin/sshd", "-D", "-e"]
