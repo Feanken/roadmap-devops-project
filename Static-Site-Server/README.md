@@ -352,3 +352,5 @@ These fundamentals provide a foundation for more advanced deployment automation 
 
 
 
+
+https://roadmap.sh/projects/static-site-server
