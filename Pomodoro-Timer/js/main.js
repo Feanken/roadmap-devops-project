@@ -24,6 +24,7 @@ import { initSettingsDialog } from './ui/settings-dialog.js';
 import { initFocusMode } from './ui/focus-mode.js';
 import { createTaskSuggestions } from './ui/task-suggest.js';
 import { initSummary } from './ui/summary.js';
+import { celebrate } from './ui/celebrate.js';
 
 // ---- state -------------------------------------------------------------------
 const saved = loadToday();
@@ -136,7 +137,10 @@ timer.on('complete', ({ finished, next, completedWork, endedAt, durationMs }) =>
   if (document.hidden) timerView.setAlert(true); // bell in the tab title until the user is back
 
   let message = `${MODE_LABELS[finished]} finished. Next: ${MODE_LABELS[next]}.`;
-  if (finished === MODES.WORK && completedWork === timer.settings.dailyGoal) message += ' You reached your daily goal!';
+  if (finished === MODES.WORK && completedWork === timer.settings.dailyGoal) {
+    message += ' You reached your daily goal!';
+    celebrate();
+  }
   announce(message);
   notifySessionEnd({ enabled: timer.settings.notify, finished, body: message });
 });

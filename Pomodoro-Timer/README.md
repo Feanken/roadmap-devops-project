@@ -106,7 +106,7 @@ docker run -d --name pomodoro -p 8080:8080 lofi-pomodoro
 ```bash
 npm run check      # konsistensi statis
 npm test           # unit test (32)
-npm run test:e2e   # browser sungguhan (82), butuh server berjalan di E2E_URL (mis. npm start)
+npm run test:e2e   # browser sungguhan (85), butuh server berjalan di E2E_URL (mis. npm start)
 npm run verify     # check + test
 ```
 
@@ -149,6 +149,8 @@ Tambahan terbaru: layar tidak mati selama sesi berjalan (Screen Wake Lock, bisa 
 Lalu: baris "ends 16:56" di bawah waktu (jam selesai sesi yang sedang berjalan), saran kecil saat istirahat di kolom tugas ("drink a glass of water"), dan lonceng 🔔 di judul tab kalau sesi selesai saat tab di latar belakang (tanpa perlu izin notifikasi; hilang saat tab dibuka lagi).
 
 Tombol "+5 min" di title bar (atau tombol `+`) menambah 5 menit ke sesi yang sedang berjalan atau dijeda, maksimal 1 jam. Ring, jam selesai, dan log memakai durasi sebenarnya (log mencatat 30m, bukan 25m), dan tambahan itu ikut bertahan setelah reload.
+
+Saat target harian tercapai, 18 percikan (titik dan belah ketupat) memancar dari dial lalu hilang sendiri. Murni dekorasi: `transform` + `opacity`, digambar dengan CSS (tanpa glyph font), dan dilewati kalau `prefers-reduced-motion` aktif.
 
 Panel Today: tombol × di tiap baris log untuk menghapus sesi yang salah catat (hitungan, riwayat, dan siklus ikut menyesuaikan) dan "Copy summary" yang menyalin rekap hari ini sebagai teks biasa ke clipboard (untuk catatan atau stand-up).
 

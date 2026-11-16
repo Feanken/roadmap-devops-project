@@ -353,6 +353,17 @@ try {
     (await ev(`document.querySelectorAll('#log li').length`)) === 0 && (await text('completed')) === '0' &&
     (await ev(`document.getElementById('copy-summary').disabled`)) &&
     (await ev(`JSON.parse(localStorage.getItem('pomodoro.today.v2')).entries.length`)) === 0);
+
+  // reaching the daily goal (goal is 1 here) bursts sparkles around the dial, then cleans them up
+  check('no sparkles before the goal is reached', (await ev(`document.querySelectorAll('.spark').length`)) === 0);
+  await click('.mode[data-mode="work"]');
+  await click('#toggle');
+  await ev('window.__skew = 25 * 60 * 1000 + 2000');
+  await sleep(500);
+  check('goal reached: sparkles burst around the dial', (await ev(`document.querySelectorAll('.spark').length`)) === 18, String(await ev(`document.querySelectorAll('.spark').length`)));
+  await sleep(2600);
+  check('sparkles remove themselves', (await ev(`document.querySelectorAll('.spark').length`)) === 0);
+  await ev('window.__skew = 0');
   await ev(`localStorage.setItem('pomodoro.session.v1', JSON.stringify({ mode: 'work', status: 'running', remainingMs: 1000, endAt: Date.now() - 3 * 86400000 }))`);
   await click('#reset-count');
   await click('#reset-count'); // armed, then confirmed
