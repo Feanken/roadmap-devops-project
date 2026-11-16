@@ -15,6 +15,25 @@ export const THEME = Object.freeze({
   [MODES.LONG_BREAK]: { themeColor: '#3b2530', accent: '#ffd28a', fileName: 'long_chill' },
 });
 
+export const WORK_PLACEHOLDER = 'what are you focusing on?';
+
+/** Gentle suggestions shown in the task field during breaks (the field is for the next work session). */
+export const BREAK_TIPS = Object.freeze({
+  [MODES.SHORT_BREAK]: [
+    'stretch your neck and shoulders',
+    'drink a glass of water',
+    'look at something far away',
+    'stand up and walk a little',
+    'take three slow breaths',
+  ],
+  [MODES.LONG_BREAK]: [
+    'step outside for a minute',
+    'make yourself a warm drink',
+    'move around, no screens',
+    'rest your eyes for a while',
+  ],
+});
+
 /** One-click interval presets in the settings dialog. */
 export const PRESETS = Object.freeze({
   classic: { work: 25, shortBreak: 5, longBreak: 15, longBreakInterval: 4 },

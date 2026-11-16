@@ -256,7 +256,23 @@ try {
   await click('#reset');
   await sleep(200);
 
-  const press = (key) => ev(`document.dispatchEvent(new KeyboardEvent('keydown', { key: ${JSON.stringify(key)}, bubbles: true }))`);
+  // break tip in the task field, "ends at" line, bell in the title when a session ends in the background
+  const placeholder = () => ev(`document.getElementById('task').placeholder`);
+  check('break shows a tip instead of the work prompt', (await placeholder()) !== 'what are you focusing on?' && (await placeholder()).length > 5, await placeholder());
+  check('no "ends at" line while idle', (await text('dial-ends')) === '');
+  await click('#toggle');
+  await sleep(300);
+  check('"ends at" line shows the finish time while running', /^ends \d/.test(await text('dial-ends')), await text('dial-ends'));
+  await ev(`Object.defineProperty(document, 'hidden', { configurable: true, get: () => true })`);
+  await ev('window.__skew += 5 * 60 * 1000 + 2000'); // the break ends "in the background"
+  await sleep(600);
+  check('bell in the tab title when a session ends in the background', (await ev('document.title')).startsWith('🔔'), await ev('document.title'));
+  check('work prompt is back after the break', (await placeholder()) === 'what are you focusing on?');
+  await ev(`delete document.hidden; document.dispatchEvent(new Event('visibilitychange'))`);
+  await sleep(300);
+  check('bell cleared when the tab is visible again', !(await ev('document.title')).includes('🔔'), await ev('document.title'));
+
+  const press =(key) => ev(`document.dispatchEvent(new KeyboardEvent('keydown', { key: ${JSON.stringify(key)}, bubbles: true }))`);
   await press('3');
   await sleep(150);
   check('key 3 selects Long Break', (await ev('document.body.dataset.mode')) === 'longBreak');

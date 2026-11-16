@@ -213,6 +213,15 @@ test('sanitizeSettings clamps and falls back to defaults', () => {
   assert.equal(s.volume, 1);
 });
 
+test('snapshot exposes the wall-clock end only while running', () => {
+  const { timer, clock } = make();
+  assert.equal(timer.snapshot().endAt, null);
+  timer.start();
+  assert.equal(timer.snapshot().endAt, clock.t + 25 * MIN);
+  timer.pause();
+  assert.equal(timer.snapshot().endAt, null);
+});
+
 test('keepAwake defaults on and only accepts booleans', () => {
   assert.equal(DEFAULT_SETTINGS.keepAwake, true);
   assert.equal(sanitizeSettings({}).keepAwake, true);

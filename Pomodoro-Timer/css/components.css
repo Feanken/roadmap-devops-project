@@ -212,6 +212,12 @@
     line-height: 1.1;
     letter-spacing: -0.04em;
   }
+  .dial__ends {
+    min-height: 1.3em; /* reserved even when empty, so the clock does not jump */
+    font-family: var(--font-mono);
+    font-size: max(0.7rem, calc(var(--dial) * 0.038));
+    color: var(--ink-dim);
+  }
   body[data-status="paused"] .dial__time { animation: blink 1.4s steps(2, jump-none) infinite; }
   @keyframes blink { 50% { opacity: 0.5; } }
 

@@ -93,6 +93,7 @@ export class PomodoroTimer {
       mode: this.mode,
       status: this.status,
       remainingMs: this.remainingMs,
+      endAt: this.status === STATUS.RUNNING ? this.endAt : null, // wall-clock end (ms), only while running
       totalMs: this.durationMs(),
       completedWork: this.completedWork,
       cycleProgress: this.cycleProgress,

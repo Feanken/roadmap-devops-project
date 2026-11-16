@@ -120,6 +120,7 @@ timer.on('complete', ({ finished, next, completedWork, endedAt }) => {
 
   if (timer.settings.sound) playChime(timer.settings.volume);
   flourish();
+  if (document.hidden) timerView.setAlert(true); // bell in the tab title until the user is back
 
   let message = `${MODE_LABELS[finished]} finished. Next: ${MODE_LABELS[next]}.`;
   if (finished === MODES.WORK && completedWork === timer.settings.dailyGoal) message += ' You reached your daily goal!';
@@ -145,6 +146,8 @@ document.addEventListener('visibilitychange', () => {
   if (document.hidden) return;
   timer.tick();
   rollOverDay();
+  timerView.setAlert(false);
+  renderAll();
 });
 
 // Offline support (optional enhancement).
