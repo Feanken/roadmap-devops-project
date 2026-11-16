@@ -408,6 +408,13 @@
   .log__empty[hidden] { display: none; }
 
   /* ======================================================================
+     Focus mode: only the timer and the ambience controls remain.
+     This must live in the same layer as the components it hides: a later
+     layer would beat their `display` regardless of specificity.
+     ====================================================================== */
+  body[data-focus="on"] :is(.room, .stats, .today, .footer) { display: none; }
+
+  /* ======================================================================
      Hover styles only where hovering exists (avoids "sticky" hover on touch)
      ====================================================================== */
   @media (hover: hover) {

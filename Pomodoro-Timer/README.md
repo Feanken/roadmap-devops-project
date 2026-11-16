@@ -31,6 +31,9 @@ Pomodoro Timer bertema lofi, dibuat dengan HTML + CSS + JavaScript ES modules. T
 - **Riwayat 7 hari**: grafik batang, total sesi minggu ini, dan **streak** hari berturut-turut (hari ini yang masih kosong belum memutus streak). Hari yang mencapai target diberi warna gradasi. Disimpan 60 hari terakhir.
 
 **Fokus dan produktivitas**
+- **Layout dua kolom di desktop**: timer (sticky) di kiri, ilustrasi dan panel di kanan. Ukuran dial menyesuaikan tinggi layar, jadi tombol Start selalu terlihat tanpa scroll (diuji di 1366x768). Di ponsel tetap satu kolom.
+- **Mode Focus** (tombol atau tombol `F`, tersimpan): menyembunyikan ilustrasi, statistik, dan log; yang tersisa hanya timer dan kontrol ambience.
+- Pergantian sesi (Work/Break) memudar halus antar palet warna (`@property` pada token warna).
 - Input **"what are you focusing on?"**: tampil di titlebar, judul tab, dan log. Tekan Enter untuk langsung mulai.
 - **Daily goal** (default 8 sesi) dengan progress bar.
 - **Log hari ini**: jam, nama task, dan durasi tiap sesi yang selesai, plus total menit fokus. Reset otomatis tiap tengah malam (waktu lokal).
@@ -66,7 +69,7 @@ Pomodoro-Timer/
 │   ├── notify.js         # notifikasi desktop
 │   ├── favicon.js        # favicon ring progres
 │   ├── config.js, dom.js # konstanta dan helper DOM (setter berbasis diff)
-│   └── ui/               # timer-view, stats-view, controls, ambience, settings-dialog
+│   └── ui/               # timer-view, stats-view, controls, ambience, settings-dialog, focus-mode
 ├── manifest.webmanifest, sw.js, icon.svg, icon-512.png   # PWA
 ├── nginx/                # default.conf + security-headers.conf
 ├── tests/                # timer.test.mjs, log.test.mjs (unit), e2e.mjs (browser)
@@ -102,7 +105,7 @@ docker run -d --name pomodoro -p 8080:8080 lofi-pomodoro
 ```bash
 npm run check      # konsistensi statis
 npm test           # unit test (32)
-npm run test:e2e   # browser sungguhan (46), butuh server berjalan di E2E_URL
+npm run test:e2e   # browser sungguhan (57), butuh server berjalan di E2E_URL (mis. npm start)
 npm run verify     # check + test
 ```
 
@@ -117,7 +120,7 @@ docker run -d --name pomodoro -p 8080:8080 lofi-pomodoro
 E2E_URL=http://127.0.0.1:8080/ npm run test:e2e
 ```
 
-Browser dicari otomatis; atur `CHROME_PATH` kalau tidak ketemu. Screenshot disimpan di `E2E_OUT` (default folder temp). Ada 46 pemeriksaan: tampilan awal, preset, task, timer jalan/jeda, tonearm, pulihnya sesi setelah reload (berjalan, dijeda, kedaluwarsa, dan dari hari lain), 4 layer ambience dengan Web Audio asli, penyelesaian sesi, log, riwayat, streak, goal, validasi Settings, shortcut, tanpa error di console, dan tanpa scroll horizontal di 390px.
+Browser dicari otomatis; atur `CHROME_PATH` kalau tidak ketemu. Screenshot disimpan di `E2E_OUT` (default folder temp). Ada 57 pemeriksaan: tampilan awal, layout dua kolom di desktop dan satu kolom di ponsel, mode Focus, tombol Start terlihat di 1366x768, pergantian palet, preset, task, timer jalan/jeda, tonearm, pulihnya sesi setelah reload (berjalan, dijeda, kedaluwarsa, dan dari hari lain), 4 layer ambience dengan Web Audio asli, penyelesaian sesi, log, riwayat, streak, goal, validasi Settings, shortcut, tanpa error di console, dan tanpa scroll horizontal di 390px.
 
 CI (`.github/workflows/pomodoro-ci.yml` di root repo) menjalankan check, unit test, build image, cek header keamanan, lalu e2e di runner GitHub. Workflow itu belum pernah dijalankan di GitHub; yang sudah dijalankan lokal adalah langkah-langkah yang sama.
 

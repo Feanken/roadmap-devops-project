@@ -45,8 +45,7 @@
   }
   .footer__sep { margin-inline: 0.4rem; }
 
-  /* ---- focus mode: just the timer and the ambience controls ---- */
-  body[data-focus="on"] :is(.room, .stats, .today, .footer) { display: none; }
+  /* ---- focus mode layout (the hiding itself lives in components.css, see there) ---- */
   body[data-focus="on"] .main { margin-block: auto; }
 
   /*
