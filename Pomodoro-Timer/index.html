@@ -1,0 +1,347 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="description" content="A cozy lofi Pomodoro timer with configurable intervals, a daily goal, and optional ambient sound.">
+  <meta name="theme-color" content="#2a1f3d">
+  <title>Lofi Pomodoro</title>
+  <link rel="manifest" href="manifest.webmanifest">
+  <link id="favicon" rel="icon" href="icon.svg" type="image/svg+xml">
+  <link rel="apple-touch-icon" href="icon-512.png">
+  <!-- Fonts are optional: the CSS falls back to system fonts if they cannot load -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Nunito:wght@500;700;800&family=Space+Mono:wght@400;700&display=swap">
+  <link rel="stylesheet" href="css/style.css">
+  <script type="module" src="js/main.js"></script>
+</head>
+<body data-mode="work" data-status="idle" data-ambience="off" data-rain="off">
+  <a class="skip-link" href="#timer-display">Skip to timer</a>
+
+  <!-- Decorative background scene -->
+  <div class="scene" aria-hidden="true">
+    <div class="moon"></div>
+    <div class="stars"></div>
+    <div class="rain rain--far"></div>
+    <div class="rain rain--near"></div>
+    <svg class="skyline" viewBox="0 0 1200 200" preserveAspectRatio="xMidYMax slice" focusable="false">
+      <g class="skyline__buildings">
+        <rect x="0" y="120" width="90" height="80"/><rect x="70" y="90" width="70" height="110"/>
+        <rect x="150" y="140" width="80" height="60"/><rect x="240" y="70" width="60" height="130"/>
+        <rect x="310" y="110" width="100" height="90"/><rect x="420" y="150" width="70" height="50"/>
+        <rect x="500" y="95" width="80" height="105"/><rect x="590" y="130" width="90" height="70"/>
+        <rect x="690" y="60" width="65" height="140"/><rect x="765" y="120" width="85" height="80"/>
+        <rect x="860" y="100" width="70" height="100"/><rect x="940" y="145" width="100" height="55"/>
+        <rect x="1050" y="85" width="70" height="115"/><rect x="1125" y="125" width="75" height="75"/>
+      </g>
+      <g class="skyline__windows">
+        <rect x="20" y="136" width="7" height="9"/><rect x="50" y="150" width="7" height="9"/>
+        <rect x="85" y="108" width="7" height="9"/><rect x="108" y="130" width="7" height="9" class="blink"/>
+        <rect x="170" y="156" width="7" height="9"/><rect x="258" y="88" width="7" height="9"/>
+        <rect x="272" y="112" width="7" height="9" class="blink"/><rect x="330" y="128" width="7" height="9"/>
+        <rect x="372" y="150" width="7" height="9"/><rect x="518" y="112" width="7" height="9"/>
+        <rect x="548" y="136" width="7" height="9" class="blink"/><rect x="610" y="150" width="7" height="9"/>
+        <rect x="706" y="80" width="7" height="9"/><rect x="722" y="110" width="7" height="9"/>
+        <rect x="784" y="138" width="7" height="9" class="blink"/><rect x="878" y="118" width="7" height="9"/>
+        <rect x="960" y="160" width="7" height="9"/><rect x="1068" y="104" width="7" height="9"/>
+        <rect x="1086" y="130" width="7" height="9" class="blink"/><rect x="1150" y="142" width="7" height="9"/>
+      </g>
+    </svg>
+  </div>
+  <div class="grain" aria-hidden="true"></div>
+
+  <div class="page">
+    <header class="topbar">
+      <p class="brand">
+        <span class="brand__logo" aria-hidden="true">🌙</span>
+        <span class="brand__name">lofi pomodoro</span>
+      </p>
+      <button type="button" id="open-settings" class="btn btn--pill" aria-haspopup="dialog">
+        <svg class="icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M12 15.5a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7Z"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.9l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.9-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.9.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.9 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.9l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.9.3h.1a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.9-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.9v.1a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1Z"/></svg>
+        <span>Settings</span>
+      </button>
+    </header>
+
+    <main class="main">
+      <!-- Little desk scene: window, sleeping cat, coffee, books, lamp. Decorative only. -->
+      <figure class="room" aria-hidden="true">
+        <svg viewBox="0 0 560 180" preserveAspectRatio="xMidYMid slice" focusable="false">
+          <defs>
+            <clipPath id="win-clip"><rect x="40" y="24" width="160" height="100" rx="3"/></clipPath>
+            <linearGradient id="sky" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0" style="stop-color: var(--bg-2)"/><stop offset="1" style="stop-color: var(--bg)"/>
+            </linearGradient>
+            <linearGradient id="cone" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0" style="stop-color: var(--accent)" stop-opacity="0.45"/>
+              <stop offset="1" style="stop-color: var(--accent)" stop-opacity="0"/>
+            </linearGradient>
+          </defs>
+
+          <rect class="room__wall" width="560" height="180"/>
+
+          <!-- window -->
+          <g clip-path="url(#win-clip)">
+            <rect x="40" y="24" width="160" height="100" fill="url(#sky)"/>
+            <circle cx="158" cy="52" r="14" fill="#ffdcae"/>
+            <g class="room__stars" fill="#fff">
+              <circle cx="62" cy="40" r="1.2"/><circle cx="92" cy="58" r="1"/><circle cx="118" cy="36" r="1.3"/>
+              <circle cx="78" cy="78" r="1"/><circle cx="184" cy="84" r="1.1"/><circle cx="132" cy="70" r="0.9"/>
+            </g>
+            <g class="room__city">
+              <rect x="40" y="96" width="26" height="28"/><rect x="62" y="84" width="22" height="40"/>
+              <rect x="88" y="100" width="30" height="24"/><rect x="122" y="90" width="20" height="34"/>
+              <rect x="146" y="102" width="28" height="22"/><rect x="170" y="88" width="30" height="36"/>
+              <g class="room__lit">
+                <rect x="68" y="92" width="3" height="4"/><rect x="74" y="104" width="3" height="4"/>
+                <rect x="98" y="108" width="3" height="4"/><rect x="128" y="98" width="3" height="4"/>
+                <rect x="154" y="110" width="3" height="4"/><rect x="180" y="96" width="3" height="4"/>
+              </g>
+            </g>
+            <g class="room__rain" stroke="#f6e7d8" stroke-opacity="0.55" stroke-width="1" stroke-linecap="round">
+              <path d="M54 10l-3 12M84 -6l-3 12M110 4l-3 12M140 -2l-3 12M170 8l-3 12M196 0l-3 12M66 40l-3 12M120 50l-3 12M156 36l-3 12M188 52l-3 12"/>
+            </g>
+          </g>
+          <rect class="room__frame" x="40" y="24" width="160" height="100" rx="3"/>
+          <path class="room__frame" d="M120 24v100M40 74h160"/>
+          <rect class="room__sill" x="32" y="124" width="176" height="7" rx="2"/>
+
+          <!-- desk -->
+          <rect class="room__desk" x="0" y="140" width="560" height="40"/>
+          <path class="room__desk-edge" d="M0 140.5h560"/>
+
+          <!-- plant -->
+          <g class="room__plant">
+            <path class="room__leaf" d="M236 118c-14-8-18-22-14-34 12 6 18 18 14 34Z"/>
+            <path class="room__leaf" d="M238 118c4-14 14-24 26-26-2 14-10 24-26 26Z"/>
+            <path class="room__leaf" d="M237 118c-2-16 2-30 10-38 6 14 4 28-10 38Z"/>
+            <path class="room__pot" d="M224 118h26l-4 22h-18Z"/>
+          </g>
+
+          <!-- sleeping cat -->
+          <g class="room__cat">
+            <path class="room__tail" d="M334 138c14 2 22-8 20-18"/>
+            <ellipse class="room__body" cx="304" cy="128" rx="32" ry="14"/>
+            <circle class="room__head" cx="276" cy="124" r="11"/>
+            <path class="room__head" d="M268 116l-1-10 8 5ZM283 113l4-9 3 11Z"/>
+            <path class="room__eye" d="M270 125q3 2.5 6 0M278 125q3 2.5 6 0"/>
+          </g>
+          <g class="room__zzz">
+            <text x="262" y="100">z</text><text x="272" y="88">z</text><text x="284" y="74">Z</text>
+          </g>
+
+          <!-- coffee -->
+          <g class="room__mug">
+            <path class="room__steam" d="M376 112c-4-6 4-10 0-16"/>
+            <path class="room__steam room__steam--b" d="M384 112c-4-6 4-10 0-16"/>
+            <path class="room__steam room__steam--c" d="M392 112c-4-6 4-10 0-16"/>
+            <rect class="room__cup" x="368" y="114" width="32" height="26" rx="5"/>
+            <path class="room__handle" d="M400 120h5a5 5 0 0 1 0 12h-5"/>
+            <ellipse class="room__coffee" cx="384" cy="115" rx="14" ry="2.5"/>
+          </g>
+
+          <!-- books -->
+          <g class="room__books">
+            <rect x="420" y="130" width="64" height="10" rx="1.5" class="room__book room__book--a"/>
+            <rect x="424" y="121" width="56" height="9" rx="1.5" class="room__book room__book--b"/>
+            <rect x="428" y="112" width="48" height="9" rx="1.5" class="room__book room__book--c"/>
+          </g>
+
+          <!-- lamp -->
+          <g class="room__lamp">
+            <path class="room__lamp-glow" d="M508 64l36 18 22 98H452l12-92Z"/>
+            <ellipse class="room__lamp-base" cx="518" cy="140" rx="20" ry="5"/>
+            <path class="room__lamp-arm" d="M518 138l-10-40 24-30"/>
+            <path class="room__lamp-shade" d="M520 54l32 8-10 20-32-8Z"/>
+          </g>
+        </svg>
+      </figure>
+
+      <section class="timer-card" aria-label="Timer">
+        <div class="titlebar" aria-hidden="true">
+          <span class="titlebar__dots"><i></i><i></i><i></i></span>
+          <span id="title-name" class="titlebar__name">focus_session.lofi</span>
+          <span class="titlebar__spacer"></span>
+        </div>
+
+        <div class="card-body">
+          <div class="segmented" role="group" aria-label="Session type">
+            <button type="button" class="segmented__btn mode" data-mode="work" aria-pressed="true">Work</button>
+            <button type="button" class="segmented__btn mode" data-mode="shortBreak" aria-pressed="false">Short Break</button>
+            <button type="button" class="segmented__btn mode" data-mode="longBreak" aria-pressed="false">Long Break</button>
+          </div>
+
+          <div class="dial">
+            <div class="dial__vinyl" aria-hidden="true"></div>
+            <svg class="dial__ring" viewBox="0 0 200 200" aria-hidden="true" focusable="false">
+              <circle class="dial__track" cx="100" cy="100" r="90"/>
+              <circle class="dial__progress" id="ring" cx="100" cy="100" r="90"/>
+            </svg>
+            <div class="dial__center">
+              <p class="dial__label">
+                <span class="visually-hidden">Current session: </span>
+                <span id="session-type">Work</span>
+              </p>
+              <div id="timer-display" class="dial__time" role="timer" aria-label="Time remaining" tabindex="-1">25:00</div>
+            </div>
+          </div>
+
+          <div class="task">
+            <label for="task" class="visually-hidden">What are you focusing on?</label>
+            <span class="task__prompt" aria-hidden="true">&gt;</span>
+            <input id="task" type="text" maxlength="60" autocomplete="off" spellcheck="false" placeholder="what are you focusing on?">
+          </div>
+
+          <div class="controls">
+            <button type="button" id="reset" class="btn btn--round" aria-keyshortcuts="R" title="Reset (R)">
+              <svg class="icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M3 12a9 9 0 1 0 3-6.7"/><path d="M3 4v5h5"/></svg>
+              <span class="visually-hidden">Reset</span>
+            </button>
+
+            <button type="button" id="toggle" class="btn btn--primary" data-state="idle" aria-keyshortcuts="Space">
+              <svg class="icon icon--play" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M7 4.5v15a1 1 0 0 0 1.5.9l12-7.5a1 1 0 0 0 0-1.8l-12-7.5A1 1 0 0 0 7 4.5Z" fill="currentColor"/></svg>
+              <svg class="icon icon--pause" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><rect x="6" y="4" width="4" height="16" rx="1" fill="currentColor"/><rect x="14" y="4" width="4" height="16" rx="1" fill="currentColor"/></svg>
+              <span id="toggle-label">Start</span>
+            </button>
+
+            <button type="button" id="skip" class="btn btn--round" aria-keyshortcuts="S" title="Skip (S)">
+              <svg class="icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M5 4.5v15a1 1 0 0 0 1.5.9l10-7.5a1 1 0 0 0 0-1.8l-10-7.5A1 1 0 0 0 5 4.5Z" fill="currentColor" stroke="none"/><path d="M19 5v14"/></svg>
+              <span class="visually-hidden">Skip</span>
+            </button>
+          </div>
+        </div>
+      </section>
+
+      <section class="panel ambience" aria-labelledby="amb-heading">
+        <div class="panel__head">
+          <h2 id="amb-heading">Ambience</h2>
+          <span class="eq" aria-hidden="true"><i></i><i></i><i></i><i></i></span>
+        </div>
+        <div class="chips" role="group" aria-label="Ambient sounds">
+          <button type="button" class="chip" data-amb="rain" aria-pressed="false"><span aria-hidden="true">🌧️</span> Rain</button>
+          <button type="button" class="chip" data-amb="vinyl" aria-pressed="false"><span aria-hidden="true">📀</span> Vinyl</button>
+          <button type="button" class="chip" data-amb="chords" aria-pressed="false"><span aria-hidden="true">🎹</span> Chords</button>
+          <button type="button" class="chip" data-amb="beat" aria-pressed="false"><span aria-hidden="true">🥁</span> Beat</button>
+        </div>
+        <div class="ambience__vol">
+          <label for="amb-volume">Volume</label>
+          <input id="amb-volume" type="range" min="0" max="1" step="0.05" value="0.5">
+        </div>
+      </section>
+
+      <section class="stats" aria-labelledby="stats-heading">
+        <h2 id="stats-heading" class="visually-hidden">Progress</h2>
+
+        <div class="tile">
+          <p class="tile__value"><span id="completed">0</span><span class="tile__goal">/<span id="goal">8</span></span></p>
+          <div id="goalbar" class="goalbar" role="progressbar" aria-label="Daily goal" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0">
+            <span id="goalfill"></span>
+          </div>
+          <p id="goal-label" class="tile__label">sessions toward today’s goal</p>
+        </div>
+
+        <div class="tile">
+          <ol id="cycle" class="cycle" aria-label="Progress toward next long break"></ol>
+          <p id="cycle-text" class="tile__label"></p>
+        </div>
+      </section>
+
+      <section class="panel today" aria-labelledby="today-heading">
+        <div class="panel__head">
+          <h2 id="today-heading">Today</h2>
+          <span id="today-summary" class="today__summary">0m focused</span>
+        </div>
+        <ol id="log" class="log"></ol>
+        <p id="log-empty" class="log__empty">Finish a focus session and it shows up here.</p>
+        <button type="button" id="reset-count" class="link-btn">Reset today</button>
+      </section>
+    </main>
+
+    <footer class="footer">
+      <p>
+        <kbd>Space</kbd> start / stop
+        <span class="footer__sep" aria-hidden="true">·</span>
+        <kbd>R</kbd> reset
+        <span class="footer__sep" aria-hidden="true">·</span>
+        <kbd>S</kbd> skip
+      </p>
+    </footer>
+  </div>
+
+  <!-- Announces session changes to screen readers (the timer itself is not live) -->
+  <div id="announcer" class="visually-hidden" role="status" aria-live="polite"></div>
+
+  <dialog id="settings" aria-labelledby="settings-title">
+    <form method="dialog" id="settings-form" novalidate>
+      <header class="dialog__header">
+        <h2 id="settings-title">Settings</h2>
+        <button type="button" id="close-settings" class="icon-btn" aria-label="Close settings">
+          <svg class="icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M6 6l12 12M18 6 6 18"/></svg>
+        </button>
+      </header>
+
+      <fieldset class="group">
+        <legend>Timer <span class="group__note">(minutes)</span></legend>
+        <div class="grid">
+          <div class="num">
+            <label for="s-work">Work</label>
+            <input id="s-work" name="work" type="number" inputmode="numeric" min="1" max="180" required>
+          </div>
+          <div class="num">
+            <label for="s-short">Short break</label>
+            <input id="s-short" name="shortBreak" type="number" inputmode="numeric" min="1" max="60" required>
+          </div>
+          <div class="num">
+            <label for="s-long">Long break</label>
+            <input id="s-long" name="longBreak" type="number" inputmode="numeric" min="1" max="120" required>
+          </div>
+          <div class="num">
+            <label for="s-interval">Long break every</label>
+            <input id="s-interval" name="longBreakInterval" type="number" inputmode="numeric" min="2" max="12" required aria-describedby="interval-help">
+          </div>
+          <div class="num num--wide">
+            <label for="s-goal">Daily goal (work sessions)</label>
+            <input id="s-goal" name="dailyGoal" type="number" inputmode="numeric" min="1" max="24" required>
+          </div>
+        </div>
+        <p id="interval-help" class="help">“Long break every” counts completed work sessions.</p>
+      </fieldset>
+
+      <fieldset class="group">
+        <legend>Behavior</legend>
+        <div class="row">
+          <label for="s-auto">Start next session automatically</label>
+          <input id="s-auto" name="autoStart" type="checkbox" role="switch" class="switch">
+        </div>
+        <div class="row">
+          <label for="s-notify">Desktop notification when a session ends</label>
+          <input id="s-notify" name="notify" type="checkbox" role="switch" class="switch" aria-describedby="notify-help">
+        </div>
+        <p id="notify-help" class="help">Only shown while this tab is in the background. Your browser will ask for permission.</p>
+        <div class="row">
+          <label for="s-sound">Play sound when a session ends</label>
+          <input id="s-sound" name="sound" type="checkbox" role="switch" class="switch">
+        </div>
+        <div class="row row--stack">
+          <label for="s-volume">Chime volume</label>
+          <div class="volume">
+            <input id="s-volume" name="volume" type="range" min="0" max="1" step="0.05">
+            <button type="button" id="test-sound" class="btn btn--small">Test</button>
+          </div>
+        </div>
+      </fieldset>
+
+      <p id="settings-error" class="error" role="alert" hidden></p>
+
+      <footer class="dialog__actions">
+        <button type="button" id="defaults" class="btn btn--text">Restore defaults</button>
+        <span class="spacer"></span>
+        <button type="button" id="cancel-settings" class="btn btn--outline">Cancel</button>
+        <button type="submit" class="btn btn--solid">Save</button>
+      </footer>
+    </form>
+  </dialog>
+
+  <noscript><p class="noscript">This app needs JavaScript enabled.</p></noscript>
+</body>
+</html>

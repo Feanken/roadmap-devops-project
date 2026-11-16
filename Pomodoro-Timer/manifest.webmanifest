@@ -1,0 +1,15 @@
+{
+  "name": "Lofi Pomodoro",
+  "short_name": "Lofi Pomodoro",
+  "description": "A cozy Pomodoro timer with a daily goal and optional lofi ambience.",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#2a1f3d",
+  "theme_color": "#2a1f3d",
+  "icons": [
+    { "src": "icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any" },
+    { "src": "icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any maskable" }
+  ]
+}
