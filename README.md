@@ -10,3 +10,4 @@
 8. **Simple-Monitoring:** https://roadmap.sh/projects/simple-monitoring-dashboard
 9. **Dummy-Systemd-Service:** https://roadmap.sh/projects/dummy-systemd-service
 10. **Basic-Dockerfile:** https://roadmap.sh/projects/basic-dockerfile
+11. **Multi-Container-Application:** https://roadmap.sh/projects/multi-container-service
