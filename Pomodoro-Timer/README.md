@@ -14,9 +14,9 @@ Pomodoro Timer bertema lofi, dibuat dengan HTML + CSS + JavaScript ES modules. T
 | Menghitung work session yang selesai | Counter, titik progres menuju long break, dan log harian |
 | Bunyi saat sesi selesai | Chime 3 nada via Web Audio API, volume bisa diatur |
 | Accessible, desktop dan mobile | Lihat bagian Aksesibilitas; layout responsif |
-| State management dan struktur modular | Engine timer murni (`timer.js`) + modul log, storage, audio, UI terpisah |
+| State management dan struktur modular | Engine timer murni (`timer.js`), modul log, storage, audio, dan UI terpisah |
 
-## Fitur tambahan
+## Fitur
 
 **Tampilan lofi**
 - Latar malam: bulan, bintang, skyline kota (jendela berkedip), film grain, vignette.
@@ -48,17 +48,30 @@ Pomodoro Timer bertema lofi, dibuat dengan HTML + CSS + JavaScript ES modules. T
 
 ```text
 Pomodoro-Timer/
-├── index.html
-├── css/style.css
+├── index.html            # semantik, sprite ikon <symbol>, <template> untuk baris log/grafik
+├── css/                  # dipecah per concern, semuanya di dalam @layer
+│   ├── tokens.css        #   token desain + urutan layer (harus dimuat pertama)
+│   ├── base.css          #   reset, tipografi, utilitas
+│   ├── scene.css         #   latar, hujan, grain, ilustrasi kamar
+│   ├── layout.css        #   kerangka halaman
+│   ├── components.css    #   tombol, dial, panel, grafik, log
+│   ├── dialog.css        #   dialog Settings
+│   └── a11y.css          #   reduced-motion, high-contrast, forced-colors
 ├── js/
-│   ├── main.js      # wiring UI, event, rendering
-│   ├── timer.js     # engine timer + state (murni, tanpa DOM)
-│   ├── log.js       # helper log harian dan goal (murni)
-│   ├── storage.js   # localStorage (settings, log hari ini, volume, task)
-│   └── audio.js     # chime + ambience via Web Audio API
+│   ├── main.js           # titik masuk: state + menyambungkan timer ke view
+│   ├── timer.js          # engine timer + state machine (murni, tanpa DOM)
+│   ├── log.js            # helper log harian, goal, riwayat, streak (murni)
+│   ├── storage.js        # localStorage
+│   ├── audio.js          # chime + ambience via Web Audio API
+│   ├── notify.js         # notifikasi desktop
+│   ├── favicon.js        # favicon ring progres
+│   ├── config.js, dom.js # konstanta dan helper DOM (setter berbasis diff)
+│   └── ui/               # timer-view, stats-view, controls, ambience, settings-dialog
 ├── manifest.webmanifest, sw.js, icon.svg, icon-512.png   # PWA
-├── nginx/           # default.conf + security-headers.conf
-├── tests/           # timer.test.mjs, log.test.mjs (unit), e2e.mjs (browser)
+├── nginx/                # default.conf + security-headers.conf
+├── tests/                # timer.test.mjs, log.test.mjs (unit), e2e.mjs (browser)
+├── tools/                # serve.mjs (server dev), check.mjs (cek konsistensi)
+├── package.json          # hanya script, tanpa dependensi
 ├── Dockerfile
 └── .dockerignore
 ```
@@ -67,14 +80,13 @@ Pomodoro-Timer/
 
 ## Menjalankan
 
-Karena memakai ES modules, buka lewat HTTP server (bukan `file://`):
+Butuh Node.js 22+ untuk tooling (aplikasinya sendiri tidak butuh Node). Karena memakai ES modules, buka lewat HTTP server, bukan `file://`:
 
 ```bash
-cd Pomodoro-Timer
-python -m http.server 8080
+npm start
 ```
 
-Buka http://localhost:8080. Service worker aktif di `localhost` dan HTTPS.
+Buka http://127.0.0.1:8080 (ganti port dengan `PORT=3000 npm start`). Alternatif tanpa Node: `python -m http.server 8080`. Service worker aktif di `localhost` dan HTTPS.
 
 ### Dengan Docker
 
@@ -85,37 +97,59 @@ docker build -t lofi-pomodoro .
 docker run -d --name pomodoro -p 8080:8080 lofi-pomodoro
 ```
 
-## Test
-
-Unit test (Node.js 18+, tanpa dependensi):
+## Test dan pengecekan
 
 ```bash
-node --test tests/timer.test.mjs tests/log.test.mjs
+npm run check      # konsistensi statis
+npm test           # unit test (32)
+npm run test:e2e   # browser sungguhan (46), butuh server berjalan di E2E_URL
+npm run verify     # check + test
 ```
 
-Mencakup start/pause/resume, transisi work ke short/long break, hitungan sesi, skip, reset, autoStart, validasi settings, tick terlambat, simpan dan pulihkan sesi, serta helper log, goal, riwayat, dan streak.
+**`npm run check`** (`tools/check.mjs`) menangkap kesalahan yang tak akan disadari build tool, karena proyek ini sengaja tanpa build: id di JS yang tidak ada di HTML, impor yang tidak ketemu, stylesheet yang tidak di-link atau aturan di luar `@layer`, file yang tidak masuk daftar cache offline di `sw.js`, serta hal yang akan diblokir CSP (inline `style`, `<style>`, handler `on...`, `<script>` inline), dan jumlah `<h1>`. Skrip ini sudah dicoba pada salinan yang sengaja dirusak dan menemukan keenam kesalahan yang disisipkan.
 
-### End-to-end (browser sungguhan)
+**Unit test** (Node 18+, tanpa dependensi) mencakup start/pause/resume, transisi work ke short/long break, hitungan sesi, skip, reset, autoStart, validasi settings, tick terlambat, simpan dan pulihkan sesi, serta helper log, goal, riwayat, dan streak.
 
-`tests/e2e.mjs` menjalankan aplikasi di Chrome/Edge headless lewat Chrome DevTools Protocol (tanpa dependensi, butuh Node 22+). Jam diputar maju dengan menggeser `Date.now()`, jadi sesi 25 menit tidak perlu ditunggu.
+**End-to-end** (`tests/e2e.mjs`) menjalankan aplikasi di Chrome/Edge headless lewat Chrome DevTools Protocol (tanpa dependensi, butuh Node 22+). Jam diputar maju dengan menggeser `Date.now()`, jadi sesi 25 menit tidak perlu ditunggu.
 
 ```bash
 docker run -d --name pomodoro -p 8080:8080 lofi-pomodoro
-E2E_URL=http://127.0.0.1:8080/ node tests/e2e.mjs
+E2E_URL=http://127.0.0.1:8080/ npm run test:e2e
 ```
 
-Browser dicari otomatis; atur `CHROME_PATH` kalau tidak ketemu. Screenshot disimpan di `E2E_OUT` (default folder temp). Saat ini ada 46 pemeriksaan: tampilan awal, preset, task, timer jalan/jeda, tonearm, pulihnya sesi setelah reload (berjalan, dijeda, kedaluwarsa, dan dari hari lain), 4 layer ambience dengan Web Audio asli, penyelesaian sesi, log, riwayat, streak, goal, validasi Settings, shortcut, tanpa error di console, dan tanpa scroll horizontal di 390px.
+Browser dicari otomatis; atur `CHROME_PATH` kalau tidak ketemu. Screenshot disimpan di `E2E_OUT` (default folder temp). Ada 46 pemeriksaan: tampilan awal, preset, task, timer jalan/jeda, tonearm, pulihnya sesi setelah reload (berjalan, dijeda, kedaluwarsa, dan dari hari lain), 4 layer ambience dengan Web Audio asli, penyelesaian sesi, log, riwayat, streak, goal, validasi Settings, shortcut, tanpa error di console, dan tanpa scroll horizontal di 390px.
 
-CI (`.github/workflows/pomodoro-ci.yml` di root repo) menjalankan unit test, build image, cek header keamanan, lalu e2e di runner GitHub. Workflow itu belum pernah dijalankan di GitHub; yang sudah dijalankan lokal adalah langkah-langkah yang sama.
+CI (`.github/workflows/pomodoro-ci.yml` di root repo) menjalankan check, unit test, build image, cek header keamanan, lalu e2e di runner GitHub. Workflow itu belum pernah dijalankan di GitHub; yang sudah dijalankan lokal adalah langkah-langkah yang sama.
+
+## Catatan kualitas kode
+
+Perbaikan terakhir berfokus pada struktur dan performa. Angka performa diukur di Edge headless (rendering software, satu mesin, dua kali jalan per versi) saat timer berjalan dengan keempat ambience menyala, selama 8 detik:
+
+| | Sebelum | Sesudah |
+|---|---|---|
+| Kerja main thread | ~39 ms/detik | ~4-7 ms/detik |
+| Style recalc | ~30 kali/detik | ~1 kali/detik |
+| Layout | ~30 kali/detik | ~1 kali/detik |
+| `main.js` | 532 baris | 149 baris |
+
+Penyebabnya bukan JavaScript (hanya ~2 ms/detik), tetapi animasi yang berjalan di main thread. Yang diubah:
+- **Ring progres**: transisi `stroke-dashoffset` 250 ms yang dipicu tiap tick membuat animasi tak pernah berhenti. Sekarang ring diperbarui sekali per detik tanpa transisi.
+- **Hujan**: dari animasi `background-position` menjadi `transform` (satu tile per siklus) yang dijeda dan disembunyikan saat Rain mati.
+- **Glow ring** yang menganimasikan `filter` dibuang, `backdrop-filter` di panel dibuang (panel dibuat sedikit lebih solid), dan grain tidak lagi memakai `mix-blend-mode`.
+- **Render per tick** sekarang berbasis diff: tidak menulis DOM kalau detik yang tampil tidak berubah.
+
+Angka ini mengukur kerja CPU main thread, bukan kelancaran di GPU sungguhan. Di perangkat nyata selisihnya bisa berbeda.
+
+Perubahan lain: `<h1>` dan `color-scheme: dark` (kontrol bawaan browser ikut gelap), ikon sebagai sprite `<symbol>`, `<template>` untuk baris dinamis, token spasi/radius/permukaan, fallback hex untuk `color-mix()`, gaya hover hanya di perangkat yang punya hover, `prefers-contrast: more`, dan `text-wrap: balance/pretty`.
 
 ## Aksesibilitas
 
 - Semua kontrol adalah `<button>`/`<input>` native, bisa dioperasikan dengan keyboard; ada skip link dan fokus yang jelas.
 - Shortcut: `Space` start/stop, `R` reset, `S` skip (nonaktif saat mengetik atau dialog terbuka).
 - Display memakai `role="timer"`; perubahan sesi, sisa menit, dan tercapainya goal diumumkan lewat `aria-live="polite"` (tidak setiap detik).
-- Tombol mode dan chip ambience memakai `aria-pressed`; toggle memakai `role="switch"`; progress goal memakai `role="progressbar"`; dialog memakai `<dialog>` native.
+- Tombol mode, chip ambience, dan preset memakai `aria-pressed`; toggle memakai `role="switch"`; progress goal memakai `role="progressbar"`; dialog memakai `<dialog>` native.
 - Ilustrasi dan efek latar disembunyikan dari screen reader (`aria-hidden`).
-- Target sentuh minimal 44px. `prefers-reduced-motion` mematikan semua animasi, dan `forced-colors` didukung.
+- Target sentuh minimal 44px. `prefers-reduced-motion` mematikan semua animasi, dan `prefers-contrast: more` serta `forced-colors` didukung.
 
 ## Deploy
 

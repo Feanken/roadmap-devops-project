@@ -1,0 +1,99 @@
+/* ==========================================================================
+   Design tokens. Loaded first: it also declares the cascade layer order, so
+   every later file only has to say which layer its rules belong to.
+   ========================================================================== */
+/* Registered colour properties: lets the browser animate between session
+   palettes, so switching Work / Break fades instead of snapping. Browsers
+   without @property simply switch instantly. */
+@property --bg { syntax: "<color>"; inherits: true; initial-value: #2a1f3d; }
+@property --bg-2 { syntax: "<color>"; inherits: true; initial-value: #4a2c5a; }
+@property --bg-3 { syntax: "<color>"; inherits: true; initial-value: #140e1f; }
+@property --accent { syntax: "<color>"; inherits: true; initial-value: #ffb199; }
+@property --accent-2 { syntax: "<color>"; inherits: true; initial-value: #ff8fab; }
+@property --skyline { syntax: "<color>"; inherits: true; initial-value: #120c1c; }
+
+@layer reset, tokens, base, scene, layout, components, dialog, a11y;
+
+@layer tokens {
+  :root {
+    color-scheme: dark; /* native scrollbars, inputs and date pickers follow the theme */
+
+    /* Work = dusk violet + peach. Text/accents keep >= 4.5:1 on every surface. */
+    --bg: #2a1f3d;
+    --bg-2: #4a2c5a;
+    --bg-3: #140e1f;
+    --accent: #ffb199;
+    --accent-2: #ff8fab;
+    --skyline: #120c1c;
+
+    --ink: #f6e7d8; /* warm cream */
+    --ink-dim: rgb(246 231 216 / 0.8);
+    --line: rgb(246 231 216 / 0.18);
+    --focus: #ffe08a;
+    --danger: #ff8f9f;
+
+    /* Surfaces */
+    --panel: rgb(20 13 33 / 0.8); /* a bit more opaque than a blurred glass look: no backdrop-filter (it is costly) */
+    --panel-solid: #1f1631;
+    --surface: rgb(0 0 0 / 0.3);
+    --surface-soft: rgb(0 0 0 / 0.25);
+    --hover: rgb(246 231 216 / 0.12);
+
+    /* Shape + elevation */
+    --radius-sm: 10px;
+    --radius-md: 12px;
+    --radius: 18px;
+    --radius-pill: 999px;
+    --shadow-card: 6px 6px 0 rgb(0 0 0 / 0.35);
+    --shadow-panel: 4px 4px 0 rgb(0 0 0 / 0.3);
+
+    /* Spacing scale */
+    --space-1: 0.25rem;
+    --space-2: 0.5rem;
+    --space-3: 0.75rem;
+    --space-4: 1rem;
+    --space-5: 1.25rem;
+    --space-6: 1.5rem;
+
+    /* Type */
+    --font-ui: "Nunito", system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif;
+    --font-mono: "Space Mono", ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace;
+
+    /* Motion */
+    --ease-out: cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  /* Per-session palettes: only these few values change, everything derives from them */
+  body[data-mode="shortBreak"] { --bg: #1d3340; --bg-2: #2f5560; --bg-3: #0d1a20; --accent: #9fe0c4; --accent-2: #7fc8e8; --skyline: #0a161b; }
+  body[data-mode="longBreak"]  { --bg: #3b2530; --bg-2: #6b3a44; --bg-3: #1c1015; --accent: #ffd28a; --accent-2: #ff9d7a; --skyline: #170b10; }
+
+  /*
+   * Colours derived from the palette. They live on <body> (not :root) because
+   * that is where data-mode overrides --bg. Plain hex fallbacks first; browsers
+   * with color-mix() get exact per-session tints.
+   */
+  body {
+    --wall: #1e1432;
+    --desk: #170f26;
+    --city: #150f22;
+    --frame: #8b7f95;
+    --sill: #7b6f87;
+    --pot: #8a4a5a;
+    --book-b: #b9a9a4;
+    --book-c: #8c6a5e;
+    --bar: rgb(246 231 216 / 0.55);
+  }
+  @supports (color: color-mix(in srgb, red 50%, blue)) {
+    body {
+      --wall: color-mix(in srgb, var(--bg) 62%, black);
+      --desk: color-mix(in srgb, var(--bg) 32%, black);
+      --city: color-mix(in srgb, var(--bg) 35%, black);
+      --frame: color-mix(in srgb, var(--ink) 50%, var(--bg));
+      --sill: color-mix(in srgb, var(--ink) 40%, var(--bg));
+      --pot: color-mix(in srgb, var(--accent-2) 65%, black);
+      --book-b: color-mix(in srgb, var(--ink) 60%, var(--bg));
+      --book-c: color-mix(in srgb, var(--accent) 70%, black);
+      --bar: color-mix(in srgb, var(--ink) 55%, transparent);
+    }
+  }
+}

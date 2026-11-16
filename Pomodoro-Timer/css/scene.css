@@ -1,0 +1,182 @@
+/* Decorative background (moon, stars, skyline, rain, grain) and the desk illustration.
+   Everything here is aria-hidden in the HTML. Motion uses transform/opacity only
+   (compositor-friendly) and idle effects are paused so they cost nothing. */
+
+@layer scene {
+  .scene { position: fixed; inset: 0; z-index: 0; overflow: hidden; pointer-events: none; }
+
+  .moon {
+    position: absolute;
+    top: 7vh; right: max(8vw, 1.5rem);
+    width: clamp(56px, 11vw, 96px);
+    aspect-ratio: 1;
+    border-radius: 50%;
+    background: radial-gradient(circle at 35% 35%, #fff6df, #ffdcae 60%, #f2b98c);
+    box-shadow: 0 0 60px 12px rgb(255 217 168 / 0.28);
+    opacity: 0.9;
+  }
+
+  /* On wide screens the page is a centred column; park the moon in the left margin instead of behind the buttons */
+  @media (min-width: 1200px) {
+    .moon { right: auto; left: calc((100vw - 1040px) / 4 - 48px); }
+  }
+
+  .stars {
+    position: absolute;
+    top: 0; left: 0;
+    width: 2px; height: 2px;
+    border-radius: 50%;
+    background: #fff;
+    box-shadow:
+      8vw 6vh 0 #fff, 17vw 14vh 0 rgb(255 255 255 / .7), 26vw 5vh 0 #fff, 34vw 19vh 0 rgb(255 255 255 / .6),
+      43vw 9vh 0 #fff, 52vw 22vh 0 rgb(255 255 255 / .7), 61vw 4vh 0 #fff, 69vw 16vh 0 rgb(255 255 255 / .6),
+      78vw 26vh 0 #fff, 90vw 12vh 0 rgb(255 255 255 / .7), 95vw 30vh 0 #fff, 4vw 28vh 0 rgb(255 255 255 / .6),
+      22vw 34vh 0 #fff, 48vw 38vh 0 rgb(255 255 255 / .5), 84vw 42vh 0 rgb(255 255 255 / .6);
+    animation: twinkle 4s ease-in-out infinite alternate;
+  }
+  @keyframes twinkle { from { opacity: 0.45; } to { opacity: 1; } }
+
+  .skyline { position: absolute; left: 0; bottom: 0; width: 100%; height: clamp(120px, 24vh, 240px); }
+  .skyline__buildings rect { fill: var(--skyline); }
+  .skyline__windows rect { fill: var(--accent); opacity: 0.55; } /* quiet: they show faintly through the panels */
+  .skyline__windows .blink { animation: flicker 5s steps(1) infinite; }
+  @keyframes flicker { 0%, 55%, 100% { opacity: 0.55; } 60%, 90% { opacity: 0.1; } }
+
+  /*
+   * Rain. The layer is taller than the screen by one tile and slides down by
+   * exactly one tile (a pure transform, so no per-frame repaint). While the
+   * Rain ambience is off it is hidden and its animation is paused.
+   */
+  .rain {
+    --tile: 260px;
+    --fall: 0.9s;
+    position: absolute;
+    top: calc(var(--tile) * -1);
+    right: 0; bottom: 0; left: 0;
+    visibility: hidden;
+    opacity: 0;
+    background-repeat: repeat;
+    animation: fall var(--fall) linear infinite paused;
+    transition: opacity 0.8s ease, visibility 0s linear 0.8s;
+  }
+  .rain--far {
+    --tile: 200px;
+    --fall: 1.4s;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cg stroke='%23f6e7d8' stroke-opacity='.28' stroke-width='1' stroke-linecap='round'%3E%3Cpath d='M20 10l-3 16M90 60l-3 16M150 20l-3 16M60 120l-3 16M170 140l-3 16M120 170l-3 16M10 180l-3 16M195 90l-3 16'/%3E%3C/g%3E%3C/svg%3E");
+  }
+  .rain--near {
+    --tile: 260px;
+    --fall: 0.8s;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='260' height='260'%3E%3Cg stroke='%23f6e7d8' stroke-opacity='.5' stroke-width='1.4' stroke-linecap='round'%3E%3Cpath d='M40 30l-5 28M200 70l-5 28M120 140l-5 28M30 200l-5 28M220 210l-5 28M100 10l-5 28'/%3E%3C/g%3E%3C/svg%3E");
+  }
+  body[data-rain="on"] .rain {
+    visibility: visible;
+    opacity: 1;
+    animation-play-state: running;
+    transition-delay: 0s;
+  }
+  @keyframes fall { to { transform: translateY(var(--tile)); } }
+
+  /* Film grain (plain alpha blending: cheap) + vignette */
+  .grain {
+    position: fixed;
+    inset: -50%;
+    z-index: 40;
+    pointer-events: none;
+    opacity: 0.1;
+    will-change: transform;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='220' height='220'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 0 0 0 1.2 -.2'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+    animation: grain 0.9s steps(5) infinite;
+  }
+  @keyframes grain {
+    0% { transform: translate(0, 0); }
+    20% { transform: translate(-3%, 2%); }
+    40% { transform: translate(2%, -3%); }
+    60% { transform: translate(-2%, -1%); }
+    80% { transform: translate(3%, 3%); }
+    100% { transform: translate(0, 0); }
+  }
+  body::after {
+    content: "";
+    position: fixed;
+    inset: 0;
+    z-index: 39;
+    pointer-events: none;
+    background: radial-gradient(120% 100% at 50% 40%, transparent 55%, rgb(0 0 0 / 0.45) 100%);
+  }
+
+  /* ---- desk illustration ---- */
+  .room {
+    aspect-ratio: 560 / 180;
+    overflow: hidden;
+    border: 2px solid var(--line);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow-panel);
+  }
+  .room svg { display: block; width: 100%; height: 100%; }
+
+  /* Gradient stops use classes (not inline styles) so a strict CSP can stay in place */
+  .stop-sky-a { stop-color: var(--bg-2); }
+  .stop-sky-b { stop-color: var(--bg); }
+  .stop-cone { stop-color: var(--accent); }
+
+  .room__wall { fill: var(--wall); transition: fill 0.5s ease; }
+  .room__frame { fill: none; stroke: var(--frame); stroke-width: 5; }
+  .room__sill { fill: var(--sill); }
+  .room__city rect { fill: var(--city); }
+  .room__city .room__lit rect { fill: var(--accent); }
+
+  .room__rain {
+    visibility: hidden;
+    opacity: 0;
+    animation: roomRain 0.9s linear infinite paused;
+    transition: opacity 0.8s ease, visibility 0s linear 0.8s;
+  }
+  body[data-rain="on"] .room__rain { visibility: visible; opacity: 1; animation-play-state: running; transition-delay: 0s; }
+  @keyframes roomRain { from { transform: translateY(-14px); } to { transform: translateY(36px); } }
+
+  .room__desk { fill: var(--desk); }
+  .room__desk-edge { fill: none; stroke: var(--accent); stroke-opacity: 0.4; stroke-width: 2; }
+
+  .room__leaf { fill: #3c8a68; }
+  .room__leaf:nth-child(2) { fill: #2f7658; }
+  .room__pot { fill: var(--pot); }
+
+  .room__body, .room__head { fill: #120c1c; stroke: rgb(246 231 216 / 0.25); stroke-width: 1; }
+  .room__body { transform-origin: 304px 142px; animation: breathe 3.6s ease-in-out infinite; }
+  .room__tail { fill: none; stroke: #120c1c; stroke-width: 6; stroke-linecap: round; transform-origin: 334px 138px; animation: tail 3.4s ease-in-out infinite alternate; }
+  .room__eye { fill: none; stroke: var(--ink); stroke-width: 1.2; stroke-linecap: round; }
+  @keyframes breathe { 50% { transform: scaleY(1.07); } }
+  @keyframes tail { from { transform: rotate(-8deg); } to { transform: rotate(10deg); } }
+
+  .room__zzz text { fill: var(--ink); font-family: var(--font-mono); font-size: 10px; font-weight: 700; opacity: 0; animation: zzz 4s ease-in-out infinite; }
+  .room__zzz text:nth-child(2) { animation-delay: 0.7s; }
+  .room__zzz text:nth-child(3) { animation-delay: 1.4s; }
+  @keyframes zzz {
+    0% { opacity: 0; transform: translate(0, 6px); }
+    35% { opacity: 0.9; }
+    100% { opacity: 0; transform: translate(6px, -8px); }
+  }
+
+  .room__cup { fill: var(--accent); }
+  .room__handle { fill: none; stroke: var(--accent); stroke-width: 4; }
+  .room__coffee { fill: #3b2418; }
+  .room__steam { fill: none; stroke: var(--ink); stroke-opacity: 0.6; stroke-width: 2; stroke-linecap: round; opacity: 0; animation: steam 2.8s ease-in-out infinite; }
+  .room__steam--b { animation-delay: 0.9s; }
+  .room__steam--c { animation-delay: 1.8s; }
+  @keyframes steam {
+    0% { opacity: 0; transform: translateY(6px); }
+    40% { opacity: 0.8; }
+    100% { opacity: 0; transform: translateY(-8px); }
+  }
+
+  .room__book--a { fill: var(--accent-2); }
+  .room__book--b { fill: var(--book-b); }
+  .room__book--c { fill: var(--book-c); }
+
+  .room__lamp-base { fill: #120c1c; }
+  .room__lamp-arm { fill: none; stroke: #120c1c; stroke-width: 4; stroke-linecap: round; stroke-linejoin: round; }
+  .room__lamp-shade { fill: var(--accent); }
+  .room__lamp-glow { fill: url(#cone); animation: lampGlow 5s ease-in-out infinite alternate; }
+  @keyframes lampGlow { from { opacity: 0.7; } to { opacity: 1; } }
+}

@@ -2,3 +2,5 @@ tests/
 README.md
 .dockerignore
 Dockerfile
+tools/
+package.json

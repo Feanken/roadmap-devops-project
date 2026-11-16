@@ -3,20 +3,43 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-  <meta name="description" content="A cozy lofi Pomodoro timer with configurable intervals, a daily goal, and optional ambient sound.">
+  <meta name="color-scheme" content="dark">
   <meta name="theme-color" content="#2a1f3d">
+  <meta name="description" content="A cozy lofi Pomodoro timer with configurable intervals, a daily goal, and optional ambient sound.">
   <title>Lofi Pomodoro</title>
+
   <link rel="manifest" href="manifest.webmanifest">
   <link id="favicon" rel="icon" href="icon.svg" type="image/svg+xml">
   <link rel="apple-touch-icon" href="icon-512.png">
+
   <!-- Fonts are optional: the CSS falls back to system fonts if they cannot load -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Nunito:wght@500;700;800&family=Space+Mono:wght@400;700&display=swap">
-  <link rel="stylesheet" href="css/style.css">
+
+  <!-- tokens.css must come first: it declares the cascade layer order -->
+  <link rel="stylesheet" href="css/tokens.css">
+  <link rel="stylesheet" href="css/base.css">
+  <link rel="stylesheet" href="css/scene.css">
+  <link rel="stylesheet" href="css/layout.css">
+  <link rel="stylesheet" href="css/components.css">
+  <link rel="stylesheet" href="css/dialog.css">
+  <link rel="stylesheet" href="css/a11y.css">
+
   <script type="module" src="js/main.js"></script>
 </head>
-<body data-mode="work" data-status="idle" data-ambience="off" data-rain="off">
+<body data-mode="work" data-status="idle" data-ambience="off" data-rain="off" data-focus="off">
+  <!-- Icon sprite: each icon is defined once and referenced with <use> -->
+  <svg class="sprite" aria-hidden="true" focusable="false">
+    <symbol id="i-gear" viewBox="0 0 24 24"><path d="M12 15.5a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7Z"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.9l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.9-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.9.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.9 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.9l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.9.3h.1a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.9-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.9v.1a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1Z"/></symbol>
+    <symbol id="i-reset" viewBox="0 0 24 24"><path d="M3 12a9 9 0 1 0 3-6.7"/><path d="M3 4v5h5"/></symbol>
+    <symbol id="i-play" viewBox="0 0 24 24"><path d="M7 4.5v15a1 1 0 0 0 1.5.9l12-7.5a1 1 0 0 0 0-1.8l-12-7.5A1 1 0 0 0 7 4.5Z" fill="currentColor"/></symbol>
+    <symbol id="i-pause" viewBox="0 0 24 24"><rect x="6" y="4" width="4" height="16" rx="1" fill="currentColor"/><rect x="14" y="4" width="4" height="16" rx="1" fill="currentColor"/></symbol>
+    <symbol id="i-skip" viewBox="0 0 24 24"><path d="M5 4.5v15a1 1 0 0 0 1.5.9l10-7.5a1 1 0 0 0 0-1.8l-10-7.5A1 1 0 0 0 5 4.5Z" fill="currentColor" stroke="none"/><path d="M19 5v14"/></symbol>
+    <symbol id="i-focus" viewBox="0 0 24 24"><path d="M8 3H5a2 2 0 0 0-2 2v3M16 3h3a2 2 0 0 1 2 2v3M8 21H5a2 2 0 0 1-2-2v-3M16 21h3a2 2 0 0 0 2-2v-3"/><circle cx="12" cy="12" r="2.5"/></symbol>
+    <symbol id="i-close" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6 6 18"/></symbol>
+  </svg>
+
   <a class="skip-link" href="#timer-display">Skip to timer</a>
 
   <!-- Decorative background scene -->
@@ -53,14 +76,20 @@
 
   <div class="page">
     <header class="topbar">
-      <p class="brand">
+      <h1 class="brand">
         <span class="brand__logo" aria-hidden="true">🌙</span>
         <span class="brand__name">lofi pomodoro</span>
-      </p>
-      <button type="button" id="open-settings" class="btn btn--pill" aria-haspopup="dialog">
-        <svg class="icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M12 15.5a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7Z"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.9l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.9-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.9.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.9 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.9l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.9.3h.1a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.9-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.9v.1a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1Z"/></svg>
-        <span>Settings</span>
-      </button>
+      </h1>
+      <div class="topbar__actions">
+        <button type="button" id="toggle-focus" class="btn btn--pill" aria-pressed="false" aria-keyshortcuts="F" title="Focus mode (F)">
+          <svg class="icon" aria-hidden="true" focusable="false"><use href="#i-focus"/></svg>
+          <span>Focus</span>
+        </button>
+        <button type="button" id="open-settings" class="btn btn--pill" aria-haspopup="dialog">
+          <svg class="icon" aria-hidden="true" focusable="false"><use href="#i-gear"/></svg>
+          <span>Settings</span>
+        </button>
+      </div>
     </header>
 
     <main class="main">
@@ -157,7 +186,8 @@
         </svg>
       </figure>
 
-      <section class="timer-card" aria-label="Timer">
+      <section class="timer-card" aria-labelledby="timer-heading">
+        <h2 id="timer-heading" class="visually-hidden">Timer</h2>
         <div class="titlebar" aria-hidden="true">
           <span class="titlebar__dots"><i></i><i></i><i></i></span>
           <span id="title-name" class="titlebar__name">focus_session.lofi</span>
@@ -190,23 +220,23 @@
           <div class="task">
             <label for="task" class="visually-hidden">What are you focusing on?</label>
             <span class="task__prompt" aria-hidden="true">&gt;</span>
-            <input id="task" type="text" maxlength="60" autocomplete="off" spellcheck="false" placeholder="what are you focusing on?">
+            <input id="task" type="text" maxlength="60" autocomplete="off" spellcheck="false" enterkeyhint="go" placeholder="what are you focusing on?">
           </div>
 
           <div class="controls">
             <button type="button" id="reset" class="btn btn--round" aria-keyshortcuts="R" title="Reset (R)">
-              <svg class="icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M3 12a9 9 0 1 0 3-6.7"/><path d="M3 4v5h5"/></svg>
+              <svg class="icon" aria-hidden="true" focusable="false"><use href="#i-reset"/></svg>
               <span class="visually-hidden">Reset</span>
             </button>
 
             <button type="button" id="toggle" class="btn btn--primary" data-state="idle" aria-keyshortcuts="Space">
-              <svg class="icon icon--play" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M7 4.5v15a1 1 0 0 0 1.5.9l12-7.5a1 1 0 0 0 0-1.8l-12-7.5A1 1 0 0 0 7 4.5Z" fill="currentColor"/></svg>
-              <svg class="icon icon--pause" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><rect x="6" y="4" width="4" height="16" rx="1" fill="currentColor"/><rect x="14" y="4" width="4" height="16" rx="1" fill="currentColor"/></svg>
+              <svg class="icon icon--play" aria-hidden="true" focusable="false"><use href="#i-play"/></svg>
+              <svg class="icon icon--pause" aria-hidden="true" focusable="false"><use href="#i-pause"/></svg>
               <span id="toggle-label">Start</span>
             </button>
 
             <button type="button" id="skip" class="btn btn--round" aria-keyshortcuts="S" title="Skip (S)">
-              <svg class="icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M5 4.5v15a1 1 0 0 0 1.5.9l10-7.5a1 1 0 0 0 0-1.8l-10-7.5A1 1 0 0 0 5 4.5Z" fill="currentColor" stroke="none"/><path d="M19 5v14"/></svg>
+              <svg class="icon" aria-hidden="true" focusable="false"><use href="#i-skip"/></svg>
               <span class="visually-hidden">Skip</span>
             </button>
           </div>
@@ -242,7 +272,7 @@
         </div>
 
         <div class="tile">
-          <ol id="cycle" class="cycle" aria-label="Progress toward next long break"></ol>
+          <ol id="cycle" class="cycle" aria-label="Progress toward next long break"><li></li><li></li><li></li><li></li></ol>
           <p id="cycle-text" class="tile__label"></p>
         </div>
       </section>
@@ -270,6 +300,8 @@
         <kbd>R</kbd> reset
         <span class="footer__sep" aria-hidden="true">·</span>
         <kbd>S</kbd> skip
+        <span class="footer__sep" aria-hidden="true">·</span>
+        <kbd>F</kbd> focus mode
       </p>
     </footer>
   </div>
@@ -282,7 +314,7 @@
       <header class="dialog__header">
         <h2 id="settings-title">Settings</h2>
         <button type="button" id="close-settings" class="icon-btn" aria-label="Close settings">
-          <svg class="icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M6 6l12 12M18 6 6 18"/></svg>
+          <svg class="icon" aria-hidden="true" focusable="false"><use href="#i-close"/></svg>
         </button>
       </header>
 
@@ -296,23 +328,23 @@
         <div class="grid">
           <div class="num">
             <label for="s-work">Work</label>
-            <input id="s-work" name="work" type="number" inputmode="numeric" min="1" max="180" required>
+            <input id="s-work" name="work" type="number" inputmode="numeric" autocomplete="off" min="1" max="180" required>
           </div>
           <div class="num">
             <label for="s-short">Short break</label>
-            <input id="s-short" name="shortBreak" type="number" inputmode="numeric" min="1" max="60" required>
+            <input id="s-short" name="shortBreak" type="number" inputmode="numeric" autocomplete="off" min="1" max="60" required>
           </div>
           <div class="num">
             <label for="s-long">Long break</label>
-            <input id="s-long" name="longBreak" type="number" inputmode="numeric" min="1" max="120" required>
+            <input id="s-long" name="longBreak" type="number" inputmode="numeric" autocomplete="off" min="1" max="120" required>
           </div>
           <div class="num">
             <label for="s-interval">Long break every</label>
-            <input id="s-interval" name="longBreakInterval" type="number" inputmode="numeric" min="2" max="12" required aria-describedby="interval-help">
+            <input id="s-interval" name="longBreakInterval" type="number" inputmode="numeric" autocomplete="off" min="2" max="12" required aria-describedby="interval-help">
           </div>
           <div class="num num--wide">
             <label for="s-goal">Daily goal (work sessions)</label>
-            <input id="s-goal" name="dailyGoal" type="number" inputmode="numeric" min="1" max="24" required>
+            <input id="s-goal" name="dailyGoal" type="number" inputmode="numeric" autocomplete="off" min="1" max="24" required>
           </div>
         </div>
         <p id="interval-help" class="help">“Long break every” counts completed work sessions.</p>
@@ -352,6 +384,19 @@
       </footer>
     </form>
   </dialog>
+
+  <!-- Row templates cloned by the stats view -->
+  <template id="tpl-log-item">
+    <li><span class="log__time"></span><span class="log__task"></span><span class="log__min"></span></li>
+  </template>
+  <template id="tpl-week-item">
+    <li>
+      <span class="visually-hidden"></span>
+      <span class="week__count" aria-hidden="true"></span>
+      <span class="week__bar" aria-hidden="true"><span></span></span>
+      <span class="week__day" aria-hidden="true"></span>
+    </li>
+  </template>
 
   <noscript><p class="noscript">This app needs JavaScript enabled.</p></noscript>
 </body>

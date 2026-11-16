@@ -12,6 +12,7 @@ const KEYS = {
   today: 'pomodoro.today.v2', // { date, count, entries[] } — starts over each day
   ambienceVolume: 'pomodoro.ambienceVolume.v1',
   task: 'pomodoro.task.v1',
+  focus: 'pomodoro.focus.v1', // focus mode on/off
 };
 
 function read(key) {
@@ -58,5 +59,8 @@ export function loadAmbienceVolume() {
 }
 export const saveAmbienceVolume = (v) => write(KEYS.ambienceVolume, v);
 
-export const loadTask = () => cleanTask(read(KEYS.task));
+export const loadFocusMode = () => read(KEYS.focus) === true;
+export const saveFocusMode = (on) => write(KEYS.focus, Boolean(on));
+
+export const loadTask =() => cleanTask(read(KEYS.task));
 export const saveTask = (task) => write(KEYS.task, cleanTask(task));

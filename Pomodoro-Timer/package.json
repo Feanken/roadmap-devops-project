@@ -1,0 +1,17 @@
+{
+  "name": "lofi-pomodoro",
+  "version": "1.0.0",
+  "description": "A cozy lofi Pomodoro timer. Plain HTML, CSS and ES modules: no build step, no dependencies.",
+  "private": true,
+  "type": "module",
+  "engines": {
+    "node": ">=22"
+  },
+  "scripts": {
+    "start": "node tools/serve.mjs",
+    "check": "node tools/check.mjs",
+    "test": "node --test tests/timer.test.mjs tests/log.test.mjs",
+    "test:e2e": "node tests/e2e.mjs",
+    "verify": "npm run check && npm test"
+  }
+}

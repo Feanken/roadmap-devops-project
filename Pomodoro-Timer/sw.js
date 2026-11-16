@@ -1,20 +1,39 @@
 // Service worker: makes the app installable and usable offline.
 // - Same-origin files: network first (so updates show up), cache as fallback.
 // - Google Fonts: cache first (they never change for a given URL).
+//
+// Bump CACHE when the SHELL list changes. `npm run check` verifies that every
+// file in js/ and css/ is listed here.
 
-const CACHE = 'lofi-pomodoro-v1';
+const CACHE = 'lofi-pomodoro-v3';
 const SHELL = [
   './',
   'index.html',
-  'css/style.css',
+  'manifest.webmanifest',
+  'icon.svg',
+  'icon-512.png',
+  'css/tokens.css',
+  'css/base.css',
+  'css/scene.css',
+  'css/layout.css',
+  'css/components.css',
+  'css/dialog.css',
+  'css/a11y.css',
   'js/main.js',
+  'js/config.js',
+  'js/dom.js',
+  'js/favicon.js',
+  'js/notify.js',
   'js/timer.js',
   'js/log.js',
   'js/storage.js',
   'js/audio.js',
-  'manifest.webmanifest',
-  'icon.svg',
-  'icon-512.png',
+  'js/ui/timer-view.js',
+  'js/ui/stats-view.js',
+  'js/ui/controls.js',
+  'js/ui/ambience.js',
+  'js/ui/settings-dialog.js',
+  'js/ui/focus-mode.js',
 ];
 const FONT_HOSTS = ['fonts.googleapis.com', 'fonts.gstatic.com'];
 

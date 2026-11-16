@@ -146,6 +146,12 @@ try {
     (await ev(`document.querySelectorAll('#week li').length`)) === 7 &&
     (await ev(`document.querySelectorAll('#week li[data-today="true"]').length`)) === 1);
   check('no streak yet', (await text('streak')).startsWith('No streak'));
+  check('wide screen: timer left, panels right (two columns)', await ev(`(() => {
+    const t = document.querySelector('.timer-card').getBoundingClientRect();
+    const a = document.querySelector('.ambience').getBoundingClientRect();
+    return t.right <= a.left && Math.abs(t.top - document.querySelector('.room').getBoundingClientRect().top) < 2;
+  })()`));
+  check('goal marker set on the week chart', (await ev(`document.getElementById('week').style.getPropertyValue('--goal')`)) === '100%');
 
   // ---- presets -----------------------------------------------------------------
   await click('#open-settings');
@@ -265,11 +271,49 @@ try {
   await reload();
   check('a session from an earlier day is not credited to today', (await text('completed')) === '0');
 
+  // ---- focus mode ---------------------------------------------------------------------------------------------------
+  const shown = (sel) => ev(`getComputedStyle(document.querySelector(${JSON.stringify(sel)})).display !== 'none'`);
+  check('focus mode starts off', (await ev('document.body.dataset.focus')) === 'off' && (await shown('.today')));
+  await click('#toggle-focus');
+  await sleep(200);
+  check('focus mode hides room, stats and log but keeps timer + ambience',
+    (await ev('document.body.dataset.focus')) === 'on' && !(await shown('.today')) && !(await shown('.stats')) &&
+    !(await shown('.room')) && (await shown('.timer-card')) && (await shown('.ambience')));
+  check('focus button reports pressed', (await ev(`document.getElementById('toggle-focus').getAttribute('aria-pressed')`)) === 'true');
+  await reload();
+  check('focus mode survives a reload', (await ev('document.body.dataset.focus')) === 'on');
+  await ev(`document.dispatchEvent(new KeyboardEvent('keydown', { key: 'f', bubbles: true }))`);
+  await sleep(200);
+  check('F key turns focus mode off', (await ev('document.body.dataset.focus')) === 'off' && (await shown('.today')));
+
+  // ---- theme palette changes smoothly --------------------------------------------------------------------------------
+  const accent = () => ev(`getComputedStyle(document.body).getPropertyValue('--accent').trim()`);
+  const workAccent = await accent();
+  await click('.mode[data-mode="longBreak"]');
+  await sleep(900);
+  const breakAccent = await accent();
+  check('session palette switches (accent colour changes)', workAccent !== breakAccent, `${workAccent} -> ${breakAccent}`);
+  await click('.mode[data-mode="work"]');
+  await sleep(900);
+
+  // ---- a short laptop screen: Start must be reachable without scrolling ----------------------------------------------
+  await send('Emulation.setDeviceMetricsOverride', { width: 1366, height: 768, deviceScaleFactor: 1, mobile: false });
+  await sleep(700);
+  check('1366x768: Start button is visible without scrolling',
+    await ev(`(() => { const r = document.getElementById('toggle').getBoundingClientRect(); return r.top >= 0 && r.bottom <= window.innerHeight; })()`));
+  await shot('laptop');
+
   // ---- mobile layout ---------------------------------------------------------------------------------------------
   await send('Emulation.setDeviceMetricsOverride', { width: 390, height: 844, deviceScaleFactor: 2, mobile: true });
   await sleep(700);
   check('no horizontal scroll at 390px', await ev('document.documentElement.scrollWidth <= window.innerWidth + 1'),
     `${await ev('document.documentElement.scrollWidth')} vs ${await ev('window.innerWidth')}`);
+  check('phone: single column, timer above the panels', await ev(`(() => {
+    const t = document.querySelector('.timer-card').getBoundingClientRect();
+    const a = document.querySelector('.ambience').getBoundingClientRect();
+    return t.left === a.left && t.bottom <= a.top;
+  })()`));
+  check('phone: ambience chips are a 2x2 grid', (await ev(`getComputedStyle(document.querySelector('.chips')).display`)) === 'grid');
   await shot('mobile');
 } catch (err) {
   console.log('SCRIPT ERROR:', err.message);

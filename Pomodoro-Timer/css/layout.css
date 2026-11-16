@@ -1,0 +1,87 @@
+/* Page skeleton: how the big pieces are arranged */
+
+@layer layout {
+  .page {
+    position: relative;
+    z-index: 1;
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-5);
+    max-width: 560px;
+    min-height: 100vh;
+    min-height: 100dvh;
+    margin-inline: auto;
+    padding:
+      max(var(--space-4), env(safe-area-inset-top))
+      max(var(--space-4), env(safe-area-inset-right))
+      max(var(--space-6), env(safe-area-inset-bottom))
+      max(var(--space-4), env(safe-area-inset-left));
+  }
+
+  .topbar { display: flex; align-items: center; justify-content: space-between; gap: var(--space-4); }
+  .topbar__actions { display: flex; gap: var(--space-2); }
+
+  .brand {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+    font-family: var(--font-mono);
+    font-size: 1.05rem;
+    font-weight: 700;
+    letter-spacing: 0.02em;
+  }
+  .brand__logo { font-size: 1.4rem; line-height: 1; }
+
+  .main { display: grid; gap: var(--space-4); }
+
+  .stats { display: grid; grid-template-columns: 1fr 1fr; gap: var(--space-4); }
+
+  .footer {
+    margin-top: auto;
+    padding-top: var(--space-2);
+    font-size: 0.85rem;
+    text-align: center;
+    color: var(--ink-dim);
+  }
+  .footer__sep { margin-inline: 0.4rem; }
+
+  /* ---- focus mode: just the timer and the ambience controls ---- */
+  body[data-focus="on"] :is(.room, .stats, .today, .footer) { display: none; }
+  body[data-focus="on"] .main { margin-block: auto; }
+
+  /*
+   * Wide screens: two columns. The timer (the thing you act on) sits on the left
+   * and stays in view while the scenery and statistics stack on the right, so on
+   * a laptop the Start button is visible without scrolling.
+   */
+  @media (min-width: 960px) {
+    .page { max-width: 1040px; padding-top: var(--space-5); }
+
+    .main {
+      grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr);
+      grid-template-areas:
+        "timer room"
+        "timer ambience"
+        "timer stats"
+        "timer today";
+      align-items: start;
+      column-gap: var(--space-6);
+    }
+    .room { grid-area: room; }
+    .timer-card { grid-area: timer; position: sticky; top: var(--space-4); }
+    .ambience { grid-area: ambience; }
+    .stats { grid-area: stats; }
+    .today { grid-area: today; }
+
+    body[data-focus="on"] .main {
+      grid-template-columns: minmax(0, 560px);
+      grid-template-areas: "timer" "ambience";
+      justify-content: center;
+    }
+    body[data-focus="on"] .timer-card { position: static; }
+  }
+
+  @media (max-width: 420px) {
+    .footer { display: none; } /* keyboard hints are pointless on touch */
+  }
+}

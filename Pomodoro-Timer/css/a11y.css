@@ -1,0 +1,20 @@
+/* User-preference overrides. Last layer, so they win over everything above. */
+
+@layer a11y {
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after { transition: none !important; animation: none !important; }
+    .rain, .room__rain { display: none; } /* falling rain is purely decorative motion */
+  }
+
+  @media (prefers-contrast: more) {
+    :root { --line: rgb(246 231 216 / 0.5); --ink-dim: #f6e7d8; }
+  }
+
+  @media (forced-colors: active) {
+    .scene, .grain, body::after { display: none; }
+    .dial__progress { stroke: CanvasText; filter: none; }
+    .dial__track { stroke: GrayText; }
+    .segmented__btn[aria-pressed="true"], .chip[aria-pressed="true"], .preset[aria-pressed="true"] { outline: 2px solid CanvasText; }
+    .switch:checked { background: Highlight; }
+  }
+}
