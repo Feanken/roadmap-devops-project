@@ -14,7 +14,7 @@
     .scene, .grain, body::after { display: none; }
     .dial__progress { stroke: CanvasText; filter: none; }
     .dial__track { stroke: GrayText; }
-    .segmented__btn[aria-pressed="true"], .chip[aria-pressed="true"], .preset[aria-pressed="true"] { outline: 2px solid CanvasText; }
+    .segmented__btn[aria-pressed="true"], .chip[aria-pressed="true"], .preset[aria-pressed="true"], .theme[aria-pressed="true"] { outline: 2px solid CanvasText; }
     .switch:checked { background: Highlight; }
   }
 }

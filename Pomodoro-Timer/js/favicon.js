@@ -1,7 +1,7 @@
 // The favicon doubles as a tiny progress ring while a session is active.
 
 import { STATUS } from './timer.js';
-import { THEME, STATIC_FAVICON } from './config.js';
+import { STATIC_FAVICON } from './config.js';
 
 const CIRCUMFERENCE = 2 * Math.PI * 13;
 
@@ -22,14 +22,14 @@ export function createFavicon(link) {
   let lastKey = '';
   return {
     /** progress is 0..1; the icon only changes ~60 times per session, not every tick. */
-    update(snapshot, progress) {
+    update(snapshot, progress, accent) {
       const idle = snapshot.status === STATUS.IDLE;
-      const key = idle ? 'idle' : `${snapshot.mode}-${Math.round(progress * 60)}`;
+      const key = idle ? 'idle' : `${accent}-${Math.round(progress * 60)}`;
       if (key === lastKey) return;
       lastKey = key;
       link.href = idle
         ? STATIC_FAVICON
-        : `data:image/svg+xml,${encodeURIComponent(ringSvg(THEME[snapshot.mode].accent, progress))}`;
+        : `data:image/svg+xml,${encodeURIComponent(ringSvg(accent, progress))}`;
     },
   };
 }

@@ -35,6 +35,7 @@
     /* Surfaces */
     --panel: rgb(20 13 33 / 0.8); /* a bit more opaque than a blurred glass look: no backdrop-filter (it is costly) */
     --panel-solid: #1f1631;
+    --face: #2b2142; /* centre of the dial */
     --surface: rgb(0 0 0 / 0.3);
     --surface-soft: rgb(0 0 0 / 0.25);
     --hover: rgb(246 231 216 / 0.12);
@@ -66,6 +67,26 @@
   /* Per-session palettes: only these few values change, everything derives from them */
   body[data-mode="shortBreak"] { --bg: #1d3340; --bg-2: #2f5560; --bg-3: #0d1a20; --accent: #9fe0c4; --accent-2: #7fc8e8; --skyline: #0a161b; }
   body[data-mode="longBreak"]  { --bg: #3b2530; --bg-2: #6b3a44; --bg-3: #1c1015; --accent: #ffd28a; --accent-2: #ff9d7a; --skyline: #170b10; }
+
+  /*
+   * Colour themes (the picker in Settings sets <html data-theme>). Same shape as
+   * the default: work palette on the root, break palettes on body[data-mode].
+   * `dusk` is the default above, so it needs no block. Keep js/config.js
+   * (THEME_COLORS) in sync: it supplies the meta theme-color and favicon accent.
+   */
+  :root[data-theme="forest"] {
+    --bg: #1f3328; --bg-2: #34503c; --bg-3: #0e1a13; --accent: #c8e6a0; --accent-2: #8fd694; --skyline: #0a140e;
+    --panel: rgb(10 22 16 / 0.8); --panel-solid: #12261b; --face: #1d3427;
+  }
+  :root[data-theme="forest"] body[data-mode="shortBreak"] { --bg: #1b3a38; --bg-2: #2c5a55; --bg-3: #0c1e1d; --accent: #ffe29a; --accent-2: #f4b27a; --skyline: #091615; }
+  :root[data-theme="forest"] body[data-mode="longBreak"]  { --bg: #3a3320; --bg-2: #5f5530; --bg-3: #1b170c; --accent: #ffd9a0; --accent-2: #e9a76b; --skyline: #14110a; }
+
+  :root[data-theme="ocean"] {
+    --bg: #14283f; --bg-2: #234a6b; --bg-3: #091522; --accent: #8fd3ff; --accent-2: #7fa8ff; --skyline: #08111c;
+    --panel: rgb(8 17 30 / 0.8); --panel-solid: #0f2036; --face: #1c3250;
+  }
+  :root[data-theme="ocean"] body[data-mode="shortBreak"] { --bg: #1a3d44; --bg-2: #2a6670; --bg-3: #0a1d21; --accent: #9ff5d8; --accent-2: #6fd8e8; --skyline: #08181b; }
+  :root[data-theme="ocean"] body[data-mode="longBreak"]  { --bg: #2c3358; --bg-2: #4a5590; --bg-3: #121530; --accent: #c9c2ff; --accent-2: #8fb4ff; --skyline: #0b0d20; }
 
   /*
    * Colours derived from the palette. They live on <body> (not :root) because

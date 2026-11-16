@@ -5,7 +5,7 @@
 // Bump CACHE when the SHELL list changes. `npm run check` verifies that every
 // file in js/ and css/ is listed here.
 
-const CACHE = 'lofi-pomodoro-v6';
+const CACHE = 'lofi-pomodoro-v7';
 const SHELL = [
   './',
   'index.html',
@@ -28,6 +28,7 @@ const SHELL = [
   'js/log.js',
   'js/storage.js',
   'js/audio.js',
+  'js/theme-boot.js',
   'js/wake-lock.js',
   'js/ui/timer-view.js',
   'js/ui/stats-view.js',
@@ -38,6 +39,7 @@ const SHELL = [
   'js/ui/task-suggest.js',
   'js/ui/summary.js',
   'js/ui/celebrate.js',
+  'js/ui/theme.js',
 ];
 const FONT_HOSTS = ['fonts.googleapis.com', 'fonts.gstatic.com'];
 

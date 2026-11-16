@@ -385,6 +385,41 @@ try {
   await sleep(200);
   check('F key turns focus mode off', (await ev('document.body.dataset.focus')) === 'off' && (await shown('.today')));
 
+  // ---- colour themes -------------------------------------------------------------------------------------------------
+  const rootTheme = () => ev(`document.documentElement.dataset.theme ?? 'none'`);
+  const accentNow = () => ev(`getComputedStyle(document.body).getPropertyValue('--accent').trim()`);
+  const metaColor = () => ev(`document.querySelector('meta[name="theme-color"]').content`);
+  await click('.mode[data-mode="work"]');
+  await sleep(900);
+  const duskAccent = await accentNow();
+  const duskMeta = await metaColor();
+  await click('#open-settings');
+  await sleep(200);
+  check('dusk is the selected theme by default', (await ev(`document.querySelector('.theme[data-theme-id="dusk"]').getAttribute('aria-pressed')`)) === 'true');
+  await click('.theme[data-theme-id="forest"]');
+  await sleep(900);
+  check('picking Forest sets the theme, palette and browser colour',
+    (await rootTheme()) === 'forest' && (await accentNow()) !== duskAccent && (await metaColor()) !== duskMeta,
+    `${await accentNow()} / ${await metaColor()}`);
+  check('Forest button is pressed, Dusk is not',
+    (await ev(`document.querySelector('.theme[data-theme-id="forest"]').getAttribute('aria-pressed')`)) === 'true' &&
+    (await ev(`document.querySelector('.theme[data-theme-id="dusk"]').getAttribute('aria-pressed')`)) === 'false');
+  await shot('theme-forest', false);
+  await click('#cancel-settings');
+  await reload();
+  check('theme survives a reload (and is applied before the app loads)', (await rootTheme()) === 'forest' && (await accentNow()) !== duskAccent);
+  await click('.mode[data-mode="shortBreak"]');
+  await sleep(900);
+  const forestBreakAccent = await accentNow();
+  check('break palette follows the theme too (Forest short break is gold)', forestBreakAccent === 'rgb(255, 226, 154)', forestBreakAccent);
+  await click('.mode[data-mode="work"]');
+  await click('#open-settings');
+  await sleep(200);
+  await click('.theme[data-theme-id="dusk"]');
+  await click('#cancel-settings');
+  await sleep(1200);
+  check('back to Dusk restores the original palette', (await rootTheme()) === 'dusk' && (await accentNow()) === duskAccent, await accentNow());
+
   // ---- theme palette changes smoothly --------------------------------------------------------------------------------
   const accent = () => ev(`getComputedStyle(document.body).getPropertyValue('--accent').trim()`);
   const workAccent = await accent();

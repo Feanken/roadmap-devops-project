@@ -69,11 +69,12 @@ Pomodoro-Timer/
 │   ├── notify.js         # notifikasi desktop
 │   ├── favicon.js        # favicon ring progres
 │   ├── wake-lock.js      # layar tetap menyala selama sesi berjalan (opsional)
+│   ├── theme-boot.js     # menerapkan tema tersimpan sebelum paint pertama (skrip klasik kecil)
 │   ├── config.js, dom.js # konstanta dan helper DOM (setter berbasis diff)
 │   └── ui/               # timer-view, stats-view, controls, ambience, settings-dialog, focus-mode, task-suggest, summary
 ├── manifest.webmanifest, sw.js, icon.svg, icon-512.png   # PWA
 ├── nginx/                # default.conf + security-headers.conf
-├── tests/                # timer.test.mjs, log.test.mjs (unit), e2e.mjs (browser)
+├── tests/                # timer.test.mjs, log.test.mjs, config.test.mjs (unit), e2e.mjs (browser)
 ├── tools/                # serve.mjs (server dev), check.mjs (cek konsistensi)
 ├── package.json          # hanya script, tanpa dependensi
 ├── Dockerfile
@@ -106,7 +107,7 @@ docker run -d --name pomodoro -p 8080:8080 lofi-pomodoro
 ```bash
 npm run check      # konsistensi statis
 npm test           # unit test (32)
-npm run test:e2e   # browser sungguhan (85), butuh server berjalan di E2E_URL (mis. npm start)
+npm run test:e2e   # browser sungguhan (91), butuh server berjalan di E2E_URL (mis. npm start)
 npm run verify     # check + test
 ```
 
@@ -151,6 +152,8 @@ Lalu: baris "ends 16:56" di bawah waktu (jam selesai sesi yang sedang berjalan),
 Tombol "+5 min" di title bar (atau tombol `+`) menambah 5 menit ke sesi yang sedang berjalan atau dijeda, maksimal 1 jam. Ring, jam selesai, dan log memakai durasi sebenarnya (log mencatat 30m, bukan 25m), dan tambahan itu ikut bertahan setelah reload.
 
 Saat target harian tercapai, 18 percikan (titik dan belah ketupat) memancar dari dial lalu hilang sendiri. Murni dekorasi: `transform` + `opacity`, digambar dengan CSS (tanpa glyph font), dan dilewati kalau `prefers-reduced-motion` aktif.
+
+Tema warna: Dusk (bawaan), Forest, dan Ocean, dipilih di Settings dan langsung berlaku. Tiap tema punya palet untuk Work, Short Break, dan Long Break (di `css/tokens.css`), dan warna `theme-color` browser serta favicon ikut berubah (`THEME_COLORS` di `js/config.js`). `js/theme-boot.js` menerapkannya sebelum paint pertama supaya tidak ada kedipan; `npm run check` memastikan setiap tema punya palet dan tombolnya.
 
 Panel Today: tombol × di tiap baris log untuk menghapus sesi yang salah catat (hitungan, riwayat, dan siklus ikut menyesuaikan) dan "Copy summary" yang menyalin rekap hari ini sebagai teks biasa ke clipboard (untuk catatan atau stand-up).
 

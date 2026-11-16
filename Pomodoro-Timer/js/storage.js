@@ -4,6 +4,7 @@
 import {
   dayKey, sanitizeEntries, cleanTask, rememberTask, sanitizeHistory, recordDay, totalMinutes,
 } from './log.js';
+import { THEMES, DEFAULT_THEME } from './config.js';
 
 const KEYS = {
   settings: 'pomodoro.settings.v1',
@@ -14,6 +15,7 @@ const KEYS = {
   task: 'pomodoro.task.v1',
   focus: 'pomodoro.focus.v1', // focus mode on/off
   recentTasks: 'pomodoro.recentTasks.v1', // last few task labels, for the suggestion list
+  theme: 'pomodoro.theme.v1', // colour theme id (js/theme-boot.js reads this key too)
 };
 
 function read(key) {
@@ -62,6 +64,12 @@ export const saveAmbienceVolume = (v) => write(KEYS.ambienceVolume, v);
 
 export const loadFocusMode = () => read(KEYS.focus) === true;
 export const saveFocusMode = (on) => write(KEYS.focus, Boolean(on));
+
+export function loadTheme() {
+  const id = read(KEYS.theme);
+  return Object.hasOwn(THEMES, id) ? id : DEFAULT_THEME;
+}
+export const saveTheme = (id) => write(KEYS.theme, Object.hasOwn(THEMES, id) ? id : DEFAULT_THEME);
 
 export const loadRecentTasks = () => rememberTask(read(KEYS.recentTasks), '');
 export const saveRecentTasks = (list) => write(KEYS.recentTasks, rememberTask(list, ''));

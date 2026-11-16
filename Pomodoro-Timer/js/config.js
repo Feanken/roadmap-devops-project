@@ -34,6 +34,33 @@ export const BREAK_TIPS = Object.freeze({
   ],
 });
 
+/** Colour themes the user can pick (palettes live in css/tokens.css; `dusk` is the default). */
+export const THEMES = Object.freeze({
+  dusk: { label: 'Dusk' },
+  forest: { label: 'Forest' },
+  ocean: { label: 'Ocean' },
+});
+export const DEFAULT_THEME = 'dusk';
+
+/** Browser-chrome colour and favicon accent per theme + session; keep in sync with css/tokens.css. */
+const THEME_COLORS = Object.freeze({
+  forest: {
+    [MODES.WORK]: { themeColor: '#1f3328', accent: '#c8e6a0' },
+    [MODES.SHORT_BREAK]: { themeColor: '#1b3a38', accent: '#ffe29a' },
+    [MODES.LONG_BREAK]: { themeColor: '#3a3320', accent: '#ffd9a0' },
+  },
+  ocean: {
+    [MODES.WORK]: { themeColor: '#14283f', accent: '#8fd3ff' },
+    [MODES.SHORT_BREAK]: { themeColor: '#1a3d44', accent: '#9ff5d8' },
+    [MODES.LONG_BREAK]: { themeColor: '#2c3358', accent: '#c9c2ff' },
+  },
+});
+
+/** { themeColor, accent } for a theme and session; unknown themes fall back to the default one. */
+export function paletteFor(theme, mode) {
+  return THEME_COLORS[theme]?.[mode] ?? THEME[mode];
+}
+
 /** One-click interval presets in the settings dialog. */
 export const PRESETS = Object.freeze({
   classic: { work: 25, shortBreak: 5, longBreak: 15, longBreakInterval: 4 },

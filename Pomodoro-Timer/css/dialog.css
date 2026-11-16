@@ -67,6 +67,29 @@
   .preset[aria-pressed="true"] { color: var(--bg); background: var(--accent); border-color: var(--accent); }
   .preset[aria-pressed="true"] small { color: var(--bg); }
 
+  .themes { display: flex; flex-wrap: wrap; gap: var(--space-2); }
+  .theme {
+    display: flex;
+    flex: 1;
+    align-items: center;
+    justify-content: center;
+    gap: var(--space-2);
+    min-width: 6.5rem;
+    min-height: 44px;
+    padding: 0.4rem 0.6rem;
+    font-size: 0.9rem;
+    font-weight: 800;
+    color: var(--ink);
+    background: var(--surface);
+    border: 2px solid var(--line);
+    border-radius: var(--radius-md);
+    cursor: pointer;
+  }
+  .theme__dot { width: 0.9rem; height: 0.9rem; border-radius: 50%; background: #ffb199; box-shadow: 0 0 0 2px rgb(0 0 0 / 0.35); }
+  .theme[data-theme-id="forest"] .theme__dot { background: #c8e6a0; }
+  .theme[data-theme-id="ocean"] .theme__dot { background: #8fd3ff; }
+  .theme[aria-pressed="true"] { color: var(--bg); background: var(--accent); border-color: var(--accent); }
+
   .grid { display: grid; grid-template-columns: 1fr 1fr; gap: var(--space-3); }
   .num { display: grid; gap: 0.3rem; }
   .num--wide { grid-column: 1 / -1; }
@@ -149,8 +172,8 @@
 
   @media (hover: hover) {
     .icon-btn:hover, .btn--outline:hover { background: var(--hover); }
-    .preset:hover { background: var(--hover); }
-    .preset[aria-pressed="true"]:hover { background: var(--accent); }
+    .preset:hover, .theme:hover { background: var(--hover); }
+    .preset[aria-pressed="true"]:hover, .theme[aria-pressed="true"]:hover { background: var(--accent); }
     .btn--text:hover { color: var(--ink); text-decoration: underline; }
     .btn--solid:hover { filter: brightness(1.08); }
   }

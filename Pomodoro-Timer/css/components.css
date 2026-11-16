@@ -204,7 +204,7 @@
     justify-content: center;
     gap: 0.15rem;
     text-align: center;
-    background: radial-gradient(circle at 50% 35%, #2b2142, var(--panel-solid) 70%);
+    background: radial-gradient(circle at 50% 35%, var(--face), var(--panel-solid) 70%);
     border-radius: 50%;
     box-shadow: 0 0 0 5px rgb(246 231 216 / 0.07), 0 0 0 7px var(--accent), inset 0 2px 8px rgb(0 0 0 / 0.5);
     transition: box-shadow 0.5s ease;

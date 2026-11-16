@@ -1,7 +1,7 @@
 // The dial, mode buttons, title bar, page title and favicon.
 
 import { MODES, STATUS, formatTime } from '../timer.js';
-import { MODE_LABELS, THEME, RING_LENGTH, BASE_TITLE, WORK_PLACEHOLDER, BREAK_TIPS } from '../config.js';
+import { MODE_LABELS, THEME, paletteFor, RING_LENGTH, BASE_TITLE, WORK_PLACEHOLDER, BREAK_TIPS } from '../config.js';
 import { formatClock } from '../log.js';
 import { createFavicon } from '../favicon.js';
 import { $, qsa, setText, setAttr, setData } from '../dom.js';
@@ -57,7 +57,8 @@ export function createTimerView() {
     render(s, task) {
       const time = formatTime(s.remainingMs);
       const ends = s.endAt ? `ends ${formatClock(s.endAt)}` : '';
-      const key = `${s.mode}|${s.status}|${time}|${s.totalMs}|${task}|${ends}|${s.completedWork}`;
+      const theme = document.documentElement.dataset.theme;
+      const key = `${s.mode}|${s.status}|${time}|${s.totalMs}|${task}|${ends}|${s.completedWork}|${theme}`;
       if (key === lastKey) return;
       lastKey = key;
 
@@ -69,7 +70,8 @@ export function createTimerView() {
       setAttr(el.display, 'aria-label', `${label}, ${time} remaining`);
       setText(el.sessionType, label);
       setText(el.titleName, `${fileName(s.mode, task)}.lofi`);
-      setAttr(el.themeColor, 'content', THEME[s.mode].themeColor);
+      const palette = paletteFor(theme, s.mode);
+      setAttr(el.themeColor, 'content', palette.themeColor);
 
       setData(document.body, 'mode', s.mode);
       setData(document.body, 'status', s.status);
@@ -85,7 +87,7 @@ export function createTimerView() {
       const title = s.status === STATUS.IDLE ? BASE_TITLE : `${time} · ${focus}`;
       if (!alerting) document.title = title;
       else document.title = s.status === STATUS.IDLE ? `🔔 ${label} is ready · ${BASE_TITLE}` : `🔔 ${title}`;
-      favicon.update(s, progress);
+      favicon.update(s, progress, palette.accent);
     },
   };
 }

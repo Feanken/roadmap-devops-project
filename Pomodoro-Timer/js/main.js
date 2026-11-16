@@ -25,6 +25,7 @@ import { initFocusMode } from './ui/focus-mode.js';
 import { createTaskSuggestions } from './ui/task-suggest.js';
 import { initSummary } from './ui/summary.js';
 import { celebrate } from './ui/celebrate.js';
+import { initTheme } from './ui/theme.js';
 
 // ---- state -------------------------------------------------------------------
 const saved = loadToday();
@@ -155,6 +156,7 @@ function flourish() {
 initControls({ timer, state, onTaskChange: () => renderAll(), onResetToday: resetToday });
 initAmbience();
 initFocusMode();
+initTheme({ onChange: () => renderAll() });
 stats.onRemoveEntry(removeSession);
 initSummary({
   getText: () => summaryText({ entries: state.entries, count: timer.completedWork, goal: timer.settings.dailyGoal }),

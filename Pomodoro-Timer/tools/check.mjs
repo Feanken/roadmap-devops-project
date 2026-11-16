@@ -85,6 +85,14 @@ if (/<script(?![^>]*\bsrc=)[^>]*>/i.test(html)) fail('index.html: inline <script
 const h1 = (html.match(/<h1[\s>]/g) ?? []).length;
 if (h1 !== 1) fail(`index.html: expected exactly one <h1>, found ${h1}`);
 
+// 8. every selectable theme has a palette in tokens.css ('dusk' is the default, defined on :root) ---------
+const themeIds = [...(read('js/config.js').match(/export const THEMES = Object\.freeze\(\{([\s\S]*?)\}\);/)?.[1] ?? '').matchAll(/^\s+(\w+):/gm)].map((m) => m[1]);
+if (!themeIds.includes('dusk')) fail("js/config.js: THEMES must contain the default theme 'dusk'");
+for (const id of themeIds.filter((t) => t !== 'dusk')) {
+  if (!read('css/tokens.css').includes(`[data-theme="${id}"]`)) fail(`css/tokens.css: no palette for theme "${id}"`);
+  if (!new RegExp(`data-theme-id="${id}"`).test(html)) fail(`index.html: no theme button for "${id}"`);
+}
+
 if (problems.length) {
   console.error(`${problems.length} problem(s):\n - ${problems.join('\n - ')}`);
   process.exit(1);
