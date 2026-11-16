@@ -26,6 +26,7 @@ export function createTimerView() {
     display: $('timer-display'),
     ends: $('dial-ends'),
     task: $('task'),
+    extend: $('extend'),
     ring: $('ring'),
     sessionType: $('session-type'),
     toggle: $('toggle'),
@@ -63,6 +64,7 @@ export function createTimerView() {
       const label = MODE_LABELS[s.mode];
       setText(el.display, time);
       setText(el.ends, ends);
+      el.extend.disabled = s.status === STATUS.IDLE; // only a session in progress can be stretched
       setAttr(el.task, 'placeholder', placeholderFor(s));
       setAttr(el.display, 'aria-label', `${label}, ${time} remaining`);
       setText(el.sessionType, label);

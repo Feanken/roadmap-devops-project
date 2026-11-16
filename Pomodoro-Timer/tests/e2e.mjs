@@ -228,6 +228,7 @@ try {
     (await ev(`[...document.querySelectorAll('#task-suggestions option')].map((o) => o.value).join()`)) === 'write report');
   check('and persisted', (await ev(`JSON.parse(localStorage.getItem('pomodoro.recentTasks.v1')).join()`)) === 'write report');
 
+  const press = (key) => ev(`document.dispatchEvent(new KeyboardEvent('keydown', { key: ${JSON.stringify(key)}, bubbles: true }))`);
   const haloAnimation = () => ev(`getComputedStyle(document.querySelector('.dial__breath')).animationName`);
   check('breathing halo is still while the break has not started', (await haloAnimation()) === 'none');
 
@@ -240,8 +241,16 @@ try {
       return { addEventListener() {}, release: async () => { window.__wl.push('release'); } };
     };
   })()`);
+  check('+5 min is unavailable while idle', await ev(`document.getElementById('extend').disabled`));
   await click('#toggle'); // start the short break
   await sleep(400);
+  check('+5 min becomes available while running', await ev(`!document.getElementById('extend').disabled`));
+  await click('#extend');
+  await sleep(300);
+  check('+5 min extends the session (short break 05:00 -> ~10:00)', /^(09:5\d|10:00)$/.test(await text('timer-display')), await text('timer-display'));
+  await press('+');
+  await sleep(300);
+  check('+ key extends too (~15:00)', /^(14:5\d|15:00)$/.test(await text('timer-display')), await text('timer-display'));
   check('breathing halo animates while a break runs', (await haloAnimation()) === 'breathe');
   if (wakeLockSupported) {
     check('screen wake lock requested while running', (await ev('window.__wl.join()')) === 'screen');
@@ -272,7 +281,6 @@ try {
   await sleep(300);
   check('bell cleared when the tab is visible again', !(await ev('document.title')).includes('🔔'), await ev('document.title'));
 
-  const press =(key) => ev(`document.dispatchEvent(new KeyboardEvent('keydown', { key: ${JSON.stringify(key)}, bubbles: true }))`);
   await press('3');
   await sleep(150);
   check('key 3 selects Long Break', (await ev('document.body.dataset.mode')) === 'longBreak');

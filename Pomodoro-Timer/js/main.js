@@ -117,11 +117,11 @@ timer.on('change', (s) => {
   saveSession(timer.serialize()); // so a reload picks up where we left off
 });
 
-timer.on('complete', ({ finished, next, completedWork, endedAt }) => {
+timer.on('complete', ({ finished, next, completedWork, endedAt, durationMs }) => {
   // A session that finishes after midnight is the first one of the new day.
   if (rollOverDay() && finished === MODES.WORK) timer.completedWork = 1;
   if (finished === MODES.WORK) {
-    state.entries = addEntry(state.entries, { task: state.task, minutes: timer.settings.work, at: endedAt });
+    state.entries = addEntry(state.entries, { task: state.task, minutes: durationMs / 60_000, at: endedAt });
     stats.renderLog(state.entries);
     if (state.task) {
       state.recent = rememberTask(state.recent, state.task);

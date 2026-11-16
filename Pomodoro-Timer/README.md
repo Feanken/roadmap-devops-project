@@ -106,7 +106,7 @@ docker run -d --name pomodoro -p 8080:8080 lofi-pomodoro
 ```bash
 npm run check      # konsistensi statis
 npm test           # unit test (32)
-npm run test:e2e   # browser sungguhan (78), butuh server berjalan di E2E_URL (mis. npm start)
+npm run test:e2e   # browser sungguhan (82), butuh server berjalan di E2E_URL (mis. npm start)
 npm run verify     # check + test
 ```
 
@@ -148,6 +148,8 @@ Tambahan terbaru: layar tidak mati selama sesi berjalan (Screen Wake Lock, bisa 
 
 Lalu: baris "ends 16:56" di bawah waktu (jam selesai sesi yang sedang berjalan), saran kecil saat istirahat di kolom tugas ("drink a glass of water"), dan lonceng 🔔 di judul tab kalau sesi selesai saat tab di latar belakang (tanpa perlu izin notifikasi; hilang saat tab dibuka lagi).
 
+Tombol "+5 min" di title bar (atau tombol `+`) menambah 5 menit ke sesi yang sedang berjalan atau dijeda, maksimal 1 jam. Ring, jam selesai, dan log memakai durasi sebenarnya (log mencatat 30m, bukan 25m), dan tambahan itu ikut bertahan setelah reload.
+
 Panel Today: tombol × di tiap baris log untuk menghapus sesi yang salah catat (hitungan, riwayat, dan siklus ikut menyesuaikan) dan "Copy summary" yang menyalin rekap hari ini sebagai teks biasa ke clipboard (untuk catatan atau stand-up).
 
 Perubahan lain: `<h1>` dan `color-scheme: dark` (kontrol bawaan browser ikut gelap), ikon sebagai sprite `<symbol>`, `<template>` untuk baris dinamis, token spasi/radius/permukaan, fallback hex untuk `color-mix()`, gaya hover hanya di perangkat yang punya hover, `prefers-contrast: more`, dan `text-wrap: balance/pretty`.
@@ -155,7 +157,7 @@ Perubahan lain: `<h1>` dan `color-scheme: dark` (kontrol bawaan browser ikut gel
 ## Aksesibilitas
 
 - Semua kontrol adalah `<button>`/`<input>` native, bisa dioperasikan dengan keyboard; ada skip link dan fokus yang jelas.
-- Shortcut: `Space` start/stop, `R` reset, `S` skip, `1`/`2`/`3` pilih Work/Short Break/Long Break, `F` focus mode (nonaktif saat mengetik atau dialog terbuka).
+- Shortcut: `Space` start/stop, `R` reset, `S` skip, `+` tambah 5 menit, `1`/`2`/`3` pilih Work/Short Break/Long Break, `F` focus mode (nonaktif saat mengetik atau dialog terbuka).
 - "Reset today" butuh ketukan kedua untuk konfirmasi (batal otomatis setelah 4 detik atau saat fokus pindah).
 - Display memakai `role="timer"`; perubahan sesi, sisa menit, dan tercapainya goal diumumkan lewat `aria-live="polite"` (tidak setiap detik).
 - Tombol mode, chip ambience, dan preset memakai `aria-pressed`; toggle memakai `role="switch"`; progress goal memakai `role="progressbar"`; dialog memakai `<dialog>` native.

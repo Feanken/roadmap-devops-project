@@ -56,7 +56,7 @@ test('completing work counts a session and switches to a short break', () => {
   assert.equal(ctx.timer.status, STATUS.IDLE);
   assert.equal(ctx.timer.remainingMs, 5 * MIN);
   assert.deepEqual(events, [{
-    finished: MODES.WORK, next: MODES.SHORT_BREAK, completedWork: 1, endedAt: 1_000_000 + 25 * MIN,
+    finished: MODES.WORK, next: MODES.SHORT_BREAK, completedWork: 1, endedAt: 1_000_000 + 25 * MIN, durationMs: 25 * MIN,
   }]);
 });
 
@@ -211,6 +211,73 @@ test('sanitizeSettings clamps and falls back to defaults', () => {
   assert.equal(s.longBreak, DEFAULT_SETTINGS.longBreak);
   assert.equal(s.longBreakInterval, 2);
   assert.equal(s.volume, 1);
+});
+
+test('extend adds time to a running session and moves its end', () => {
+  const { timer, clock, advance } = make();
+  assert.equal(timer.extend(), false, 'nothing to extend while idle');
+  timer.start();
+  advance(10 * MIN);
+  assert.equal(timer.extend(), true);
+  assert.equal(timer.remainingMs, 20 * MIN);
+  assert.equal(timer.snapshot().totalMs, 30 * MIN);
+  assert.equal(timer.snapshot().endAt, clock.t + 20 * MIN);
+  advance(20 * MIN - 1);
+  assert.equal(timer.status, STATUS.RUNNING, 'still running just before the new end');
+  advance(1);
+  assert.equal(timer.status, STATUS.IDLE, 'completes at the extended end');
+});
+
+test('extend works while paused and is capped at one hour in total', () => {
+  const { timer } = make();
+  timer.start();
+  timer.pause();
+  timer.extend(5);
+  assert.equal(timer.remainingMs, 30 * MIN);
+  for (let i = 0; i < 20; i += 1) timer.extend(5);
+  assert.equal(timer.extraMs, 60 * MIN, 'cap reached');
+  assert.equal(timer.extend(5), false);
+});
+
+test('extension is reported on completion, then forgotten', () => {
+  const { timer, advance } = make();
+  let payload;
+  timer.on('complete', (p) => { payload = p; });
+  timer.start();
+  timer.extend(5);
+  advance(30 * MIN);
+  assert.equal(payload.durationMs, 30 * MIN, 'logged length includes the extension');
+  assert.equal(timer.extraMs, 0);
+  assert.equal(timer.snapshot().totalMs, 5 * MIN, 'the break is its normal length');
+});
+
+test('reset, skip and switching session drop the extension', () => {
+  const { timer } = make();
+  timer.start();
+  timer.extend(5);
+  timer.reset();
+  assert.equal(timer.snapshot().totalMs, 25 * MIN);
+  timer.start();
+  timer.extend(5);
+  timer.skip();
+  assert.equal(timer.extraMs, 0);
+  timer.start();
+  timer.extend(5);
+  timer.setMode(MODES.WORK);
+  assert.equal(timer.extraMs, 0);
+});
+
+test('an extended session survives serialize + restore', () => {
+  const a = make();
+  a.timer.start();
+  a.advance(1 * MIN);
+  a.timer.extend(5);
+  const saved = a.timer.serialize();
+  const b = make();
+  b.clock.t = a.clock.t;
+  b.timer.restore(saved);
+  assert.equal(b.timer.remainingMs, 29 * MIN, 'not clamped back to 25 minutes');
+  assert.equal(b.timer.snapshot().totalMs, 30 * MIN);
 });
 
 test('snapshot exposes the wall-clock end only while running', () => {

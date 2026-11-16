@@ -188,10 +188,12 @@
 
       <section class="timer-card" aria-labelledby="timer-heading">
         <h2 id="timer-heading" class="visually-hidden">Timer</h2>
-        <div class="titlebar" aria-hidden="true">
-          <span class="titlebar__dots"><i></i><i></i><i></i></span>
-          <span id="title-name" class="titlebar__name">focus_session.lofi</span>
-          <span class="titlebar__spacer"></span>
+        <div class="titlebar">
+          <span class="titlebar__dots" aria-hidden="true"><i></i><i></i><i></i></span>
+          <span id="title-name" class="titlebar__name" aria-hidden="true">focus_session.lofi</span>
+          <span class="titlebar__spacer">
+            <button type="button" id="extend" class="titlebar__btn" aria-keyshortcuts="+" title="Add 5 minutes (+)" disabled>+5 min</button>
+          </span>
         </div>
 
         <div class="card-body">

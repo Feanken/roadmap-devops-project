@@ -25,6 +25,9 @@ export const DEFAULT_SETTINGS = Object.freeze({
   keepAwake: true, // ask the screen not to sleep while a session is running
 });
 
+export const EXTEND_STEP_MIN = 5; // length of one "+5 min" extension
+const MAX_EXTRA_MS = 60 * 60_000; // an in-progress session can be stretched by at most an hour
+
 const LIMITS = {
   work: [1, 180],
   shortBreak: [1, 60],
@@ -64,6 +67,7 @@ export class PomodoroTimer {
     this.status = STATUS.IDLE;
     this.remainingMs = this.durationMs(this.mode);
     this.endAt = 0;
+    this.extraMs = 0; // time added to the current session with extend()
     this.listeners = new Map();
   }
 
@@ -83,6 +87,11 @@ export class PomodoroTimer {
     return this.settings[mode] * 60_000;
   }
 
+  /** Full length of the current session, including any extension. */
+  get totalMs() {
+    return this.durationMs() + this.extraMs;
+  }
+
   /** Work sessions finished in the current round of `longBreakInterval`. */
   get cycleProgress() {
     return this.completedWork % this.settings.longBreakInterval;
@@ -94,7 +103,7 @@ export class PomodoroTimer {
       status: this.status,
       remainingMs: this.remainingMs,
       endAt: this.status === STATUS.RUNNING ? this.endAt : null, // wall-clock end (ms), only while running
-      totalMs: this.durationMs(),
+      totalMs: this.totalMs,
       completedWork: this.completedWork,
       cycleProgress: this.cycleProgress,
       longBreakInterval: this.settings.longBreakInterval,
@@ -123,8 +132,28 @@ export class PomodoroTimer {
     else this.start();
   }
 
+  /**
+   * Add time to a session that is running or paused ("I need a few more minutes").
+   * Returns false when idle or when the one-hour cap is reached.
+   */
+  extend(minutes = EXTEND_STEP_MIN) {
+    if (this.status === STATUS.IDLE) return false;
+    const ms = Math.min(Math.round(minutes * 60_000), MAX_EXTRA_MS - this.extraMs);
+    if (!(ms > 0)) return false;
+    this.extraMs += ms;
+    if (this.status === STATUS.RUNNING) {
+      this.endAt += ms;
+      this.remainingMs = Math.max(0, this.endAt - this.now());
+    } else {
+      this.remainingMs += ms;
+    }
+    this.emit('change', this.snapshot());
+    return true;
+  }
+
   /** Reset the current session back to its full length. */
   reset() {
+    this.extraMs = 0;
     this.status = STATUS.IDLE;
     this.remainingMs = this.durationMs();
     this.emit('change', this.snapshot());
@@ -152,6 +181,7 @@ export class PomodoroTimer {
   setMode(mode) {
     if (!Object.values(MODES).includes(mode)) return;
     this.mode = mode;
+    this.extraMs = 0;
     this.status = STATUS.IDLE;
     this.remainingMs = this.durationMs();
     this.emit('change', this.snapshot());
@@ -176,6 +206,7 @@ export class PomodoroTimer {
       status: this.status,
       remainingMs: this.remainingMs,
       endAt: this.status === STATUS.RUNNING ? this.endAt : null,
+      extraMs: this.extraMs,
     };
   }
 
@@ -187,7 +218,9 @@ export class PomodoroTimer {
   restore(saved) {
     if (!saved || !Object.values(MODES).includes(saved.mode)) return false;
     this.mode = saved.mode;
-    const full = this.durationMs();
+    const extra = Number(saved.extraMs);
+    this.extraMs = Number.isFinite(extra) ? Math.min(MAX_EXTRA_MS, Math.max(0, extra)) : 0;
+    const full = this.totalMs;
 
     if (saved.status === STATUS.RUNNING && Number.isFinite(saved.endAt)) {
       this.endAt = saved.endAt;
@@ -200,8 +233,9 @@ export class PomodoroTimer {
       this.status = STATUS.PAUSED;
       this.emit('change', this.snapshot());
     } else {
+      this.extraMs = 0;
       this.status = STATUS.IDLE;
-      this.remainingMs = full;
+      this.remainingMs = this.durationMs();
       this.emit('change', this.snapshot());
     }
     return true;
@@ -210,6 +244,8 @@ export class PomodoroTimer {
   // ---- internals ----------------------------------------------------------
   advance(completed) {
     const finished = this.mode;
+    const finishedMs = this.totalMs; // what the session really lasted, extension included
+    this.extraMs = 0;
     if (completed && finished === MODES.WORK) this.completedWork += 1;
 
     let next;
@@ -227,7 +263,9 @@ export class PomodoroTimer {
     this.status = STATUS.IDLE;
     if (completed) {
       // endedAt = when the session really ran out (matters after a reload)
-      this.emit('complete', { finished, next, completedWork: this.completedWork, endedAt: this.endAt || this.now() });
+      this.emit('complete', {
+        finished, next, completedWork: this.completedWork, endedAt: this.endAt || this.now(), durationMs: finishedMs,
+      });
     }
     if (completed && this.settings.autoStart) this.start();
     else this.emit('change', this.snapshot());
