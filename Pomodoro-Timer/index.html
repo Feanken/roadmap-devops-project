@@ -292,7 +292,10 @@
         <ol id="week" class="week" aria-label="Work sessions in the last 7 days"></ol>
         <ol id="log" class="log"></ol>
         <p id="log-empty" class="log__empty">Finish a focus session and it shows up here.</p>
-        <button type="button" id="reset-count" class="link-btn">Reset today</button>
+        <div class="today__actions">
+          <button type="button" id="copy-summary" class="link-btn" disabled>Copy summary</button>
+          <button type="button" id="reset-count" class="link-btn">Reset today</button>
+        </div>
       </section>
     </main>
 
@@ -397,7 +400,12 @@
 
   <!-- Row templates cloned by the stats view -->
   <template id="tpl-log-item">
-    <li><span class="log__time"></span><span class="log__task"></span><span class="log__min"></span></li>
+    <li>
+      <span class="log__time"></span><span class="log__task"></span><span class="log__min"></span>
+      <button type="button" class="log__del">
+        <svg class="icon" aria-hidden="true" focusable="false"><use href="#i-close"/></svg>
+      </button>
+    </li>
   </template>
   <template id="tpl-week-item">
     <li>

@@ -70,7 +70,7 @@ Pomodoro-Timer/
 │   ├── favicon.js        # favicon ring progres
 │   ├── wake-lock.js      # layar tetap menyala selama sesi berjalan (opsional)
 │   ├── config.js, dom.js # konstanta dan helper DOM (setter berbasis diff)
-│   └── ui/               # timer-view, stats-view, controls, ambience, settings-dialog, focus-mode, task-suggest
+│   └── ui/               # timer-view, stats-view, controls, ambience, settings-dialog, focus-mode, task-suggest, summary
 ├── manifest.webmanifest, sw.js, icon.svg, icon-512.png   # PWA
 ├── nginx/                # default.conf + security-headers.conf
 ├── tests/                # timer.test.mjs, log.test.mjs (unit), e2e.mjs (browser)
@@ -106,7 +106,7 @@ docker run -d --name pomodoro -p 8080:8080 lofi-pomodoro
 ```bash
 npm run check      # konsistensi statis
 npm test           # unit test (32)
-npm run test:e2e   # browser sungguhan (73), butuh server berjalan di E2E_URL (mis. npm start)
+npm run test:e2e   # browser sungguhan (78), butuh server berjalan di E2E_URL (mis. npm start)
 npm run verify     # check + test
 ```
 
@@ -147,6 +147,8 @@ Angka ini mengukur kerja CPU main thread, bukan kelancaran di GPU sungguhan. Di 
 Tambahan terbaru: layar tidak mati selama sesi berjalan (Screen Wake Lock, bisa dimatikan di Settings; diabaikan di browser yang tidak mendukung), halo "napas" 4 detik masuk / 4 detik keluar di sekitar piringan saat istirahat (hanya `transform` + `opacity`, mati di `prefers-reduced-motion`), dan daftar saran tugas dari 8 label terakhir lewat `<datalist>`.
 
 Lalu: baris "ends 16:56" di bawah waktu (jam selesai sesi yang sedang berjalan), saran kecil saat istirahat di kolom tugas ("drink a glass of water"), dan lonceng 🔔 di judul tab kalau sesi selesai saat tab di latar belakang (tanpa perlu izin notifikasi; hilang saat tab dibuka lagi).
+
+Panel Today: tombol × di tiap baris log untuk menghapus sesi yang salah catat (hitungan, riwayat, dan siklus ikut menyesuaikan) dan "Copy summary" yang menyalin rekap hari ini sebagai teks biasa ke clipboard (untuk catatan atau stand-up).
 
 Perubahan lain: `<h1>` dan `color-scheme: dark` (kontrol bawaan browser ikut gelap), ikon sebagai sprite `<symbol>`, `<template>` untuk baris dinamis, token spasi/radius/permukaan, fallback hex untuk `color-mix()`, gaya hover hanya di perangkat yang punya hover, `prefers-contrast: more`, dan `text-wrap: balance/pretty`.
 

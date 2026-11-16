@@ -10,7 +10,7 @@ import {
   loadSettings, loadToday, saveToday, loadHistory, loadSession, saveSession, loadTask,
   loadRecentTasks, saveRecentTasks,
 } from './storage.js';
-import { dayKey, addEntry, rememberTask } from './log.js';
+import { dayKey, addEntry, removeEntry, summaryText, rememberTask } from './log.js';
 import { createWakeLock } from './wake-lock.js';
 import { playChime } from './audio.js';
 import { notifySessionEnd } from './notify.js';
@@ -23,6 +23,7 @@ import { initAmbience } from './ui/ambience.js';
 import { initSettingsDialog } from './ui/settings-dialog.js';
 import { initFocusMode } from './ui/focus-mode.js';
 import { createTaskSuggestions } from './ui/task-suggest.js';
+import { initSummary } from './ui/summary.js';
 
 // ---- state -------------------------------------------------------------------
 const saved = loadToday();
@@ -75,6 +76,18 @@ function resetToday() {
   timer.resetCount();
   persistToday();
   stats.renderLog(state.entries);
+}
+
+/** Remove one logged session (a mis-click, or a session that was not really focused). */
+function removeSession(index) {
+  const before = state.entries.length;
+  state.entries = removeEntry(state.entries, index);
+  if (state.entries.length === before) return;
+  timer.completedWork = Math.max(0, timer.completedWork - 1);
+  persistToday();
+  stats.renderLog(state.entries);
+  renderAll();
+  announce('Session removed from today.');
 }
 
 // ---- the 4 Hz loop ------------------------------------------------------------------------
@@ -138,6 +151,10 @@ function flourish() {
 initControls({ timer, state, onTaskChange: () => renderAll(), onResetToday: resetToday });
 initAmbience();
 initFocusMode();
+stats.onRemoveEntry(removeSession);
+initSummary({
+  getText: () => summaryText({ entries: state.entries, count: timer.completedWork, goal: timer.settings.dailyGoal }),
+});
 initSettingsDialog({ timer, onSaved: () => { renderWeek(); syncWakeLock(); } });
 
 // Timers are throttled in background tabs, but the wall-clock engine stays

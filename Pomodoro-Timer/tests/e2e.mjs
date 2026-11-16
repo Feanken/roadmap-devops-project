@@ -329,6 +329,22 @@ try {
   await reload();
   check('expired session is completed on load', (await text('completed')) === '1' && (await ev('document.body.dataset.mode')) === 'shortBreak');
   check('and logged', (await ev(`document.querySelectorAll('#log li').length`)) === 1);
+
+  // ---- copy summary, remove a log entry ---------------------------------------------------------------------------
+  check('copy summary enabled once there is a session', await ev(`!document.getElementById('copy-summary').disabled`));
+  await ev(`window.__copied = null; navigator.clipboard.writeText = async (t) => { window.__copied = t; }`);
+  await click('#copy-summary');
+  await sleep(200);
+  check('summary text copied (header, totals, entry)',
+    await ev(`/^Pomodoro · \\d{4}-\\d{2}-\\d{2}\\n1\\/\\d+ sessions · 25m focused\\n• .+ \\(25m\\)$/.test(window.__copied)`), await ev('window.__copied'));
+  check('copy button confirms', (await text('copy-summary')).startsWith('Copied'));
+  check('remove button has a descriptive label', (await ev(`document.querySelector('.log__del').getAttribute('aria-label')`)).startsWith('Remove '));
+  await click('.log__del');
+  await sleep(200);
+  check('removing an entry updates log, count and summary button',
+    (await ev(`document.querySelectorAll('#log li').length`)) === 0 && (await text('completed')) === '0' &&
+    (await ev(`document.getElementById('copy-summary').disabled`)) &&
+    (await ev(`JSON.parse(localStorage.getItem('pomodoro.today.v2')).entries.length`)) === 0);
   await ev(`localStorage.setItem('pomodoro.session.v1', JSON.stringify({ mode: 'work', status: 'running', remainingMs: 1000, endAt: Date.now() - 3 * 86400000 }))`);
   await click('#reset-count');
   await click('#reset-count'); // armed, then confirmed

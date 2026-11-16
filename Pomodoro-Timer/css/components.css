@@ -420,10 +420,10 @@
   }
   .log li {
     display: grid;
-    grid-template-columns: auto 1fr auto;
-    align-items: baseline;
+    grid-template-columns: auto 1fr auto auto;
+    align-items: center;
     gap: var(--space-3);
-    padding: 0.45rem 0.7rem;
+    padding: 0.2rem 0.3rem 0.2rem 0.7rem;
     font-size: 0.9rem;
     background: var(--surface-soft);
     border-radius: var(--radius-sm);
@@ -432,6 +432,22 @@
   .log__task { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
   .log__task--none { font-style: italic; color: var(--ink-dim); }
   .log__min { font-family: var(--font-mono); font-size: 0.8rem; color: var(--ink-dim); }
+  .log__del {
+    display: grid;
+    place-items: center;
+    width: 36px; /* comfortable touch target inside a compact row */
+    height: 36px;
+    padding: 0;
+    color: var(--ink-dim);
+    background: none;
+    border: 0;
+    border-radius: 50%;
+    cursor: pointer;
+  }
+  .log__del .icon { width: 1rem; height: 1rem; }
+  .log__del:hover, .log__del:focus-visible { color: var(--danger); background: var(--hover); }
+  .today__actions { display: flex; flex-wrap: wrap; gap: var(--space-4); }
+  .link-btn:disabled { opacity: 0.45; cursor: default; text-decoration: none; }
   .log__empty { font-size: 0.9rem; color: var(--ink-dim); text-wrap: pretty; }
   .log__empty[hidden] { display: none; }
 

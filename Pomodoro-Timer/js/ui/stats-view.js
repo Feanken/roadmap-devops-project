@@ -16,6 +16,7 @@ export function createStatsView() {
     cycleText: $('cycle-text'),
     log: $('log'),
     logEmpty: $('log-empty'),
+    copy: $('copy-summary'),
     todaySummary: $('today-summary'),
     streak: $('streak'),
     weekTotal: $('week-total'),
@@ -23,6 +24,14 @@ export function createStatsView() {
   };
 
   return {
+    /** Call `fn(index)` when the user removes a log row (index into the entries array). */
+    onRemoveEntry(fn) {
+      el.log.addEventListener('click', (e) => {
+        const row = e.target.closest('.log__del')?.closest('li');
+        if (row) fn(Number(row.dataset.index));
+      });
+    },
+
     renderGoal(done, goalTarget) {
       const g = goalProgress(done, goalTarget);
       setText(el.completed, g.done);
@@ -49,17 +58,20 @@ export function createStatsView() {
 
     /** Newest first. */
     renderLog(entries) {
-      const rows = [...entries].reverse().map((entry) => {
+      const rows = entries.map((entry, index) => {
         const li = cloneTemplate('tpl-log-item');
-        const [time, task, minutes] = li.children;
+        const [time, task, minutes, remove] = li.children;
         time.textContent = formatClock(entry.at);
         task.textContent = entry.task || 'untitled focus';
         task.classList.toggle('log__task--none', !entry.task);
         minutes.textContent = `${entry.minutes}m`;
+        remove.setAttribute('aria-label', `Remove ${time.textContent} ${task.textContent}`);
+        li.dataset.index = String(index); // position in `entries`, since the list is shown newest first
         return li;
-      });
+      }).reverse();
       el.log.replaceChildren(...rows);
       el.logEmpty.hidden = entries.length > 0;
+      el.copy.disabled = entries.length === 0;
       setText(el.todaySummary, `${formatMinutes(totalMinutes(entries))} focused`);
     },
 

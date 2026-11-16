@@ -2,7 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import {
   dayKey, cleanTask, addEntry, sanitizeEntries, goalProgress, totalMinutes, formatMinutes, formatClock,
-  shiftDay, sanitizeHistory, recordDay, lastDays, streak, rememberTask,
+  shiftDay, sanitizeHistory, recordDay, lastDays, streak, rememberTask, removeEntry, summaryText,
 } from '../js/log.js';
 import { sanitizeSettings, DEFAULT_SETTINGS } from '../js/timer.js';
 
@@ -36,6 +36,32 @@ test('rememberTask keeps a most-recent-first list without case-insensitive dupli
   assert.deepEqual(rememberTask(['a', 'b'], ''), ['a', 'b'], 'an empty label changes nothing');
   assert.deepEqual(rememberTask('garbage', 'x'), ['x']);
   assert.deepEqual(rememberTask(['a', 5, null, '  '], ''), ['a', '5'], 'junk in storage is cleaned');
+});
+
+test('removeEntry returns a new list without that index', () => {
+  const list = [{ n: 1 }, { n: 2 }, { n: 3 }];
+  assert.deepEqual(removeEntry(list, 1), [{ n: 1 }, { n: 3 }]);
+  assert.equal(list.length, 3, 'input is not mutated');
+  assert.equal(removeEntry(list, 9).length, 3);
+  assert.equal(removeEntry(list, -1).length, 3);
+});
+
+test('summaryText lists totals and each session', () => {
+  const at = new Date(2026, 10, 16, 14, 5).getTime();
+  const text = summaryText({
+    entries: [{ task: 'write report', minutes: 25, at }, { task: '', minutes: 50, at }],
+    count: 2,
+    goal: 8,
+    date: '2026-11-16',
+    locale: 'en-GB',
+  });
+  assert.deepEqual(text.split('\n'), [
+    'Pomodoro · 2026-11-16',
+    '2/8 sessions · 1h 15m focused',
+    '• 14:05 write report (25m)',
+    '• 14:05 untitled focus (50m)',
+  ]);
+  assert.equal(summaryText({ entries: [], count: 0, goal: 8, date: 'd' }).split('\n').length, 2);
 });
 
 test('sanitizeEntries drops malformed data', () => {

@@ -19,6 +19,21 @@ export function addEntry(entries, { task, minutes, at }, max = 100) {
   return [...entries, { task: cleanTask(task), minutes: Math.max(0, Math.round(minutes)), at }].slice(-max);
 }
 
+/** A new list without the entry at `index` (out-of-range indexes change nothing). */
+export function removeEntry(entries, index) {
+  return entries.filter((_, i) => i !== index);
+}
+
+/** Plain-text recap of a day, for pasting into notes or a stand-up message. */
+export function summaryText({ entries, count, goal, date = dayKey(), locale }) {
+  const lines = [
+    `Pomodoro · ${date}`,
+    `${count}/${goal} sessions · ${formatMinutes(totalMinutes(entries))} focused`,
+  ];
+  for (const e of entries) lines.push(`• ${formatClock(e.at, locale)} ${e.task || 'untitled focus'} (${e.minutes}m)`);
+  return lines.join('\n');
+}
+
 /**
  * Most-recently-used task labels: `task` goes to the front, a repeat (ignoring
  * case) is moved rather than duplicated, and only the newest `max` are kept.
