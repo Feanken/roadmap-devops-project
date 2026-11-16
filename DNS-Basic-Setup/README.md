@@ -4,7 +4,7 @@
 
 Project ini mempelajari dasar DNS dengan menjalankan DNS server **authoritative** sendiri menggunakan **BIND9** di dalam Docker. Server ini melayani zone `livingsacrifice.my.id` secara lokal, sehingga semua record bisa dibuat, diubah, dan diuji tanpa mengubah DNS domain asli.
 
-Project ini mengikuti tantangan dari [roadmap.sh](https://roadmap.sh/projects/dns-basic-setup) (DevOps).
+Project ini mengikuti tantangan dari [roadmap.sh](https://roadmap.sh/projects/basic-dns) ("Basic DNS Setup").
 
 ## 2. Objectives
 
@@ -129,4 +129,4 @@ Serial harus naik. Kalau tidak, secondary server dan cache tidak tahu ada peruba
 
 - Port `1053` dipakai karena port `5353` bentrok dengan layanan lain di Windows.
 - Zone ini hanya berlaku di dalam jaringan lokal. Domain `livingsacrifice.my.id` yang asli tetap diatur di registrar atau DNS provider.
-- Server ini hanya authoritative untuk `livingsacrifice.my.id`. Query ke domain lain (misalnya `example.com`) tidak dijawab karena recursion tidak diaktifkan.
+- Server ini authoritative untuk `livingsacrifice.my.id`. Query ke domain lain (misalnya `example.com`) kosong karena container tidak punya akses internet keluar, bukan karena recursion dimatikan. Config `named.conf.options` tidak mengatur recursion, jadi memakai default BIND.
