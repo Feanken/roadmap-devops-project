@@ -131,4 +131,4 @@ Serial harus naik. Kalau tidak, secondary server dan cache tidak tahu ada peruba
 - Zone ini hanya berlaku di dalam jaringan lokal. Domain `livingsacrifice.my.id` yang asli tetap diatur di registrar atau DNS provider.
 - Server ini authoritative untuk `livingsacrifice.my.id`. Query ke domain lain (misalnya `example.com`) kosong karena container tidak punya akses internet keluar, bukan karena recursion dimatikan. Config `named.conf.options` tidak mengatur recursion, jadi memakai default BIND.
 
-https://roadmap.sh/projects/basic-dns
+https://roadmap.sh/projects/simple-monitoring-dashboard

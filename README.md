@@ -6,4 +6,5 @@
 4. **Github-Actions-Deployment:** https://roadmap.sh/projects/github-actions-deployment-workflow
 5. **SSH-Remote-Server-Setup:** https://roadmap.sh/projects/ssh-remote-server-setup
 6. **Static-Site-Server:** https://roadmap.sh/projects/static-site-server
-7. **Basic-DNS-Setup:** https://roadmap.sh/projects/basic-dns
+7. **Basic-DNS-Setup:** https://roadmap.sh/projects/basic-dn
+8. **Simple-Monitoring:** https://roadmap.sh/projects/simple-monitoring-dashboard
