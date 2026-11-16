@@ -8,3 +8,4 @@
 6. **Static-Site-Server:** https://roadmap.sh/projects/static-site-server
 7. **Basic-DNS-Setup:** https://roadmap.sh/projects/basic-dn
 8. **Simple-Monitoring:** https://roadmap.sh/projects/simple-monitoring-dashboard
+9. **Dummy-Systemd-Service:** https://roadmap.sh/projects/dummy-systemd-service
