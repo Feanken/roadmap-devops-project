@@ -1,0 +1,4 @@
+zone "livingsacrifice.my.id" {
+    type master;
+    file "/etc/bind/zones/db.livingsacrifice.my.id";
+};
