@@ -165,6 +165,45 @@ export class PomodoroTimer {
     }
   }
 
+  // ---- persistence ----------------------------------------------------------
+  /** Minimal state needed to continue after a page reload. */
+  serialize() {
+    return {
+      mode: this.mode,
+      status: this.status,
+      remainingMs: this.remainingMs,
+      endAt: this.status === STATUS.RUNNING ? this.endAt : null,
+    };
+  }
+
+  /**
+   * Continue a previously serialized session. A running session whose end time
+   * has passed while the page was closed is completed (exactly like a tab that
+   * was throttled in the background). Returns false for unusable input.
+   */
+  restore(saved) {
+    if (!saved || !Object.values(MODES).includes(saved.mode)) return false;
+    this.mode = saved.mode;
+    const full = this.durationMs();
+
+    if (saved.status === STATUS.RUNNING && Number.isFinite(saved.endAt)) {
+      this.endAt = saved.endAt;
+      this.remainingMs = Math.max(0, Math.min(full, saved.endAt - this.now()));
+      this.status = STATUS.RUNNING;
+      if (this.remainingMs === 0) this.advance(true);
+      else this.emit('change', this.snapshot());
+    } else if (saved.status === STATUS.PAUSED && Number.isFinite(saved.remainingMs)) {
+      this.remainingMs = Math.max(1, Math.min(full, saved.remainingMs));
+      this.status = STATUS.PAUSED;
+      this.emit('change', this.snapshot());
+    } else {
+      this.status = STATUS.IDLE;
+      this.remainingMs = full;
+      this.emit('change', this.snapshot());
+    }
+    return true;
+  }
+
   // ---- internals ----------------------------------------------------------
   advance(completed) {
     const finished = this.mode;
@@ -183,7 +222,10 @@ export class PomodoroTimer {
     this.mode = next;
     this.remainingMs = this.durationMs(next);
     this.status = STATUS.IDLE;
-    if (completed) this.emit('complete', { finished, next, completedWork: this.completedWork });
+    if (completed) {
+      // endedAt = when the session really ran out (matters after a reload)
+      this.emit('complete', { finished, next, completedWork: this.completedWork, endedAt: this.endAt || this.now() });
+    }
     if (completed && this.settings.autoStart) this.start();
     else this.emit('change', this.snapshot());
   }

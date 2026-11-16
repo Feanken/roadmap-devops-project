@@ -70,11 +70,11 @@
           <defs>
             <clipPath id="win-clip"><rect x="40" y="24" width="160" height="100" rx="3"/></clipPath>
             <linearGradient id="sky" x1="0" y1="0" x2="0" y2="1">
-              <stop offset="0" style="stop-color: var(--bg-2)"/><stop offset="1" style="stop-color: var(--bg)"/>
+              <stop offset="0" class="stop-sky-a"/><stop offset="1" class="stop-sky-b"/>
             </linearGradient>
             <linearGradient id="cone" x1="0" y1="0" x2="0" y2="1">
-              <stop offset="0" style="stop-color: var(--accent)" stop-opacity="0.45"/>
-              <stop offset="1" style="stop-color: var(--accent)" stop-opacity="0"/>
+              <stop offset="0" class="stop-cone" stop-opacity="0.45"/>
+              <stop offset="1" class="stop-cone" stop-opacity="0"/>
             </linearGradient>
           </defs>
 
@@ -184,6 +184,7 @@
               </p>
               <div id="timer-display" class="dial__time" role="timer" aria-label="Time remaining" tabindex="-1">25:00</div>
             </div>
+            <div class="dial__arm" aria-hidden="true"></div>
           </div>
 
           <div class="task">
@@ -251,6 +252,11 @@
           <h2 id="today-heading">Today</h2>
           <span id="today-summary" class="today__summary">0m focused</span>
         </div>
+        <div class="streak-row">
+          <p id="streak" class="streak">No streak yet</p>
+          <p id="week-total" class="week-total">0 sessions this week</p>
+        </div>
+        <ol id="week" class="week" aria-label="Work sessions in the last 7 days"></ol>
         <ol id="log" class="log"></ol>
         <p id="log-empty" class="log__empty">Finish a focus session and it shows up here.</p>
         <button type="button" id="reset-count" class="link-btn">Reset today</button>
@@ -282,6 +288,11 @@
 
       <fieldset class="group">
         <legend>Timer <span class="group__note">(minutes)</span></legend>
+        <div class="presets" role="group" aria-label="Presets">
+          <button type="button" class="preset" data-preset="classic" aria-pressed="false">Classic <small>25 / 5 / 15</small></button>
+          <button type="button" class="preset" data-preset="deep" aria-pressed="false">Deep <small>50 / 10 / 30</small></button>
+          <button type="button" class="preset" data-preset="flow" aria-pressed="false">Flow <small>90 / 20 / 30</small></button>
+        </div>
         <div class="grid">
           <div class="num">
             <label for="s-work">Work</label>

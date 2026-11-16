@@ -597,6 +597,11 @@ dialog .btn--small { background: rgb(0 0 0 / 0.3); border-color: var(--line); }
 }
 .room svg { display: block; width: 100%; height: 100%; }
 
+/* Gradient stops use classes (not inline styles) so a strict CSP can stay in place */
+.stop-sky-a { stop-color: var(--bg-2); }
+.stop-sky-b { stop-color: var(--bg); }
+.stop-cone { stop-color: var(--accent); }
+
 .room__wall { fill: color-mix(in srgb, var(--bg) 62%, black); transition: fill 0.5s ease; }
 .room__frame { fill: none; stroke: color-mix(in srgb, var(--ink) 50%, var(--bg)); stroke-width: 5; }
 .room__sill { fill: color-mix(in srgb, var(--ink) 40%, var(--bg)); }
@@ -706,6 +711,90 @@ body[data-rain="on"] .room__rain { opacity: 1; }
 .log__min { font-family: var(--font-mono); font-size: 0.8rem; color: var(--ink-dim); }
 .log__empty { font-size: 0.9rem; color: var(--ink-dim); }
 .log__empty[hidden] { display: none; }
+
+/* 7-day chart + streak */
+.streak-row { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: baseline; gap: 0.25rem 1rem; }
+.streak { font-weight: 800; }
+.streak--on { color: var(--accent); }
+.week-total { font-family: var(--font-mono); font-size: 0.8rem; color: var(--ink-dim); }
+.week { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(7, 1fr); gap: 0.4rem; }
+.week li { display: grid; justify-items: center; gap: 0.25rem; }
+.week__count { min-height: 1.2em; font-family: var(--font-mono); font-size: 0.75rem; color: var(--ink-dim); }
+.week__bar { display: flex; align-items: flex-end; width: 100%; max-width: 34px; height: 60px; overflow: hidden; background: rgb(0 0 0 / 0.28); border-radius: 8px; }
+.week__bar span { display: block; width: 100%; height: 0; background: color-mix(in srgb, var(--ink) 55%, transparent); border-radius: 6px 6px 0 0; transition: height 0.5s ease; }
+.week__day { font-size: 0.75rem; color: var(--ink-dim); }
+.week li[data-today="true"] .week__bar span { background: var(--accent); }
+.week li[data-today="true"] .week__day { color: var(--accent); font-weight: 800; }
+.week li[data-met="true"] .week__bar span { background: linear-gradient(0deg, var(--accent), var(--accent-2)); }
+
+/* Presets in settings */
+.presets { display: flex; flex-wrap: wrap; gap: 0.5rem; margin-bottom: 0.75rem; }
+.preset {
+  display: grid;
+  flex: 1;
+  min-width: 6.5rem;
+  min-height: 44px;
+  padding: 0.4rem 0.6rem;
+  font: inherit;
+  font-size: 0.9rem;
+  font-weight: 800;
+  line-height: 1.2;
+  text-align: center;
+  color: var(--ink);
+  background: rgb(0 0 0 / 0.3);
+  border: 2px solid var(--line);
+  border-radius: 12px;
+  cursor: pointer;
+}
+.preset small { font-family: var(--font-mono); font-size: 0.72rem; font-weight: 400; color: var(--ink-dim); }
+.preset:hover { background: rgb(246 231 216 / 0.1); }
+.preset[aria-pressed="true"] { color: var(--bg); background: var(--accent); border-color: var(--accent); }
+.preset[aria-pressed="true"] small { color: var(--bg); }
+
+/* Tonearm: rests beside the record, swings onto it while a session runs */
+.dial__arm {
+  position: absolute;
+  top: 2%;
+  right: 2%;
+  z-index: 2;
+  width: calc(var(--dial) * 0.035);
+  height: calc(var(--dial) * 0.3);
+  background: linear-gradient(90deg, #d8cde0, #8d8198);
+  border-radius: 99px;
+  transform: rotate(14deg);
+  transform-origin: 50% 6%;
+  transition: transform 1.1s cubic-bezier(0.4, 0, 0.2, 1);
+  filter: drop-shadow(2px 3px 3px rgb(0 0 0 / 0.5));
+  pointer-events: none;
+}
+.dial__arm::before { /* pivot */
+  content: "";
+  position: absolute;
+  top: calc(var(--dial) * -0.03);
+  left: 50%;
+  width: calc(var(--dial) * 0.1);
+  height: calc(var(--dial) * 0.1);
+  border-radius: 50%;
+  background: radial-gradient(circle at 35% 35%, #efe6f5, #7c7088);
+  transform: translateX(-50%);
+}
+.dial__arm::after { /* cartridge */
+  content: "";
+  position: absolute;
+  bottom: calc(var(--dial) * -0.035);
+  left: 50%;
+  width: calc(var(--dial) * 0.06);
+  height: calc(var(--dial) * 0.075);
+  background: var(--accent);
+  border-radius: 3px;
+  transform: translateX(-50%);
+}
+body[data-status="running"] .dial__arm { transform: rotate(48deg); }
+
+/* A short flourish when a session ends */
+body.pulse .dial { animation: pulse 1s ease-out; }
+body.pulse .dial__center { box-shadow: 0 0 0 5px rgb(246 231 216 / 0.07), 0 0 0 7px var(--accent), 0 0 44px 10px var(--accent); }
+@keyframes pulse { 30% { transform: scale(1.05); } }
 
 /* ==========================================================================
    Responsive

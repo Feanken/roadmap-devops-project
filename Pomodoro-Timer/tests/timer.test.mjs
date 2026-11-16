@@ -55,7 +55,9 @@ test('completing work counts a session and switches to a short break', () => {
   assert.equal(ctx.timer.mode, MODES.SHORT_BREAK);
   assert.equal(ctx.timer.status, STATUS.IDLE);
   assert.equal(ctx.timer.remainingMs, 5 * MIN);
-  assert.deepEqual(events, [{ finished: MODES.WORK, next: MODES.SHORT_BREAK, completedWork: 1 }]);
+  assert.deepEqual(events, [{
+    finished: MODES.WORK, next: MODES.SHORT_BREAK, completedWork: 1, endedAt: 1_000_000 + 25 * MIN,
+  }]);
 });
 
 test('every 4th completed work session is followed by a long break', () => {
@@ -148,6 +150,58 @@ test('a late tick (throttled background tab) still completes correctly', () => {
   advance(40 * MIN); // way past the end
   assert.equal(timer.completedWork, 1);
   assert.equal(timer.mode, MODES.SHORT_BREAK);
+});
+
+test('serialize + restore: a running session continues after a reload', () => {
+  const a = make();
+  a.timer.start();
+  a.advance(10 * MIN);
+  const saved = JSON.parse(JSON.stringify(a.timer.serialize())); // survives JSON round-trip
+
+  const b = make(); // "new page", same clock
+  b.clock.t = a.clock.t + 2 * MIN; // 2 minutes pass while the page is closed
+  assert.equal(b.timer.restore(saved), true);
+  assert.equal(b.timer.status, STATUS.RUNNING);
+  assert.equal(b.timer.remainingMs, 13 * MIN);
+  b.advance(13 * MIN);
+  assert.equal(b.timer.completedWork, 1);
+});
+
+test('restore: a paused session keeps its remaining time', () => {
+  const a = make();
+  a.timer.start();
+  a.advance(5 * MIN);
+  a.timer.pause();
+  const b = make();
+  b.timer.restore(a.timer.serialize());
+  assert.equal(b.timer.status, STATUS.PAUSED);
+  assert.equal(b.timer.remainingMs, 20 * MIN);
+});
+
+test('restore: a session that ended while away is completed with its real end time', () => {
+  const a = make();
+  a.timer.start();
+  const saved = a.timer.serialize();
+  const b = make();
+  b.clock.t = a.clock.t + 40 * MIN;
+  const events = [];
+  b.timer.on('complete', (e) => events.push(e));
+  b.timer.restore(saved);
+  assert.equal(b.timer.completedWork, 1);
+  assert.equal(b.timer.mode, MODES.SHORT_BREAK);
+  assert.equal(events[0].endedAt, a.clock.t + 25 * MIN);
+});
+
+test('restore: bad input is rejected, oversized remaining time is clamped', () => {
+  const { timer } = make();
+  assert.equal(timer.restore(null), false);
+  assert.equal(timer.restore({ mode: 'nope', status: 'running' }), false);
+  assert.equal(timer.restore({ mode: MODES.WORK, status: STATUS.PAUSED, remainingMs: 999 * MIN }), true);
+  assert.equal(timer.remainingMs, 25 * MIN);
+  timer.restore({ mode: MODES.LONG_BREAK, status: 'idle' });
+  assert.equal(timer.mode, MODES.LONG_BREAK);
+  assert.equal(timer.status, STATUS.IDLE);
+  assert.equal(timer.remainingMs, 15 * MIN);
 });
 
 test('sanitizeSettings clamps and falls back to defaults', () => {

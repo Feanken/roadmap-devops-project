@@ -2,6 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import {
   dayKey, cleanTask, addEntry, sanitizeEntries, goalProgress, totalMinutes, formatMinutes, formatClock,
+  shiftDay, sanitizeHistory, recordDay, lastDays, streak,
 } from '../js/log.js';
 import { sanitizeSettings, DEFAULT_SETTINGS } from '../js/timer.js';
 
@@ -49,6 +50,60 @@ test('totalMinutes and formatMinutes', () => {
 
 test('formatClock returns a time of day', () => {
   assert.match(formatClock(new Date(2026, 0, 1, 14, 5).getTime(), 'en-GB'), /14[:.]05/);
+});
+
+test('shiftDay goes back by calendar days across month and year ends', () => {
+  assert.equal(shiftDay(new Date(2026, 2, 1), 1), '2026-02-28');
+  assert.equal(shiftDay(new Date(2026, 0, 1), 1), '2025-12-31');
+  assert.equal(shiftDay(new Date(2026, 5, 15), 0), '2026-06-15');
+  assert.equal(shiftDay(new Date(2026, 2, 30), 3), '2026-03-27'); // spans the DST switch in many zones
+});
+
+test('sanitizeHistory keeps only valid, non-empty days', () => {
+  const out = sanitizeHistory({
+    '2026-01-01': { count: 3, minutes: 75 },
+    '2026-01-02': { count: 0, minutes: 0 },
+    'bad-key': { count: 1, minutes: 25 },
+    '2026-01-03': { count: 'x', minutes: 5 },
+  });
+  assert.deepEqual(out, { '2026-01-01': { count: 3, minutes: 75 } });
+  assert.deepEqual(sanitizeHistory(null), {});
+});
+
+test('recordDay sets, removes and prunes', () => {
+  let h = recordDay({}, '2026-01-01', { count: 2, minutes: 50 });
+  assert.deepEqual(h, { '2026-01-01': { count: 2, minutes: 50 } });
+  h = recordDay(h, '2026-01-01', { count: 0, minutes: 0 });
+  assert.deepEqual(h, {});
+
+  let big = {};
+  for (let d = 1; d <= 9; d++) big = recordDay(big, `2026-01-0${d}`, { count: 1, minutes: 25 }, 5);
+  assert.deepEqual(Object.keys(big), ['2026-01-05', '2026-01-06', '2026-01-07', '2026-01-08', '2026-01-09']);
+});
+
+test('lastDays returns 7 days oldest-first with today flagged', () => {
+  const today = new Date(2026, 4, 20); // Wed 20 May 2026
+  const history = { '2026-05-20': { count: 4, minutes: 100 }, '2026-05-18': { count: 2, minutes: 50 } };
+  const days = lastDays(history, 7, today, 'en-US');
+  assert.equal(days.length, 7);
+  assert.equal(days[0].key, '2026-05-14');
+  assert.equal(days[6].key, '2026-05-20');
+  assert.deepEqual(days.map((d) => d.count), [0, 0, 0, 0, 2, 0, 4]);
+  assert.equal(days[6].isToday, true);
+  assert.equal(days[5].isToday, false);
+  assert.equal(days[6].weekday, 'Wed');
+});
+
+test('streak counts consecutive days and tolerates an empty today', () => {
+  const today = new Date(2026, 4, 20);
+  const day = (n) => shiftDay(today, n);
+  const mk = (...offsets) => Object.fromEntries(offsets.map((o) => [day(o), { count: 1, minutes: 25 }]));
+
+  assert.equal(streak({}, today), 0);
+  assert.equal(streak(mk(0, 1, 2), today), 3);
+  assert.equal(streak(mk(1, 2), today), 2); // nothing yet today: streak is still alive
+  assert.equal(streak(mk(2, 3), today), 0); // yesterday missed: streak is broken
+  assert.equal(streak(mk(0, 2, 3), today), 1); // gap yesterday
 });
 
 test('new settings: dailyGoal is clamped and notify defaults to off', () => {

@@ -1,10 +1,10 @@
 import { PomodoroTimer, MODES, STATUS, DEFAULT_SETTINGS, formatTime } from './timer.js';
 import {
-  loadSettings, saveSettings, loadToday, saveToday,
+  loadSettings, saveSettings, loadToday, saveToday, loadHistory, loadSession, saveSession,
   loadAmbienceVolume, saveAmbienceVolume, loadTask, saveTask,
 } from './storage.js';
 import {
-  dayKey, cleanTask, addEntry, goalProgress, totalMinutes, formatMinutes, formatClock,
+  dayKey, cleanTask, addEntry, goalProgress, totalMinutes, formatMinutes, formatClock, lastDays, streak,
 } from './log.js';
 import { unlockAudio, playChime, setAmbience, setAmbienceVolume } from './audio.js';
 
@@ -59,6 +59,10 @@ const els = {
   logEmpty: $('log-empty'),
   todaySummary: $('today-summary'),
   resetCount: $('reset-count'),
+  streak: $('streak'),
+  weekTotal: $('week-total'),
+  week: $('week'),
+  presets: document.querySelectorAll('.preset'),
   announcer: $('announcer'),
   modes: document.querySelectorAll('.mode'),
   dialog: $('settings'),
@@ -163,6 +167,51 @@ function renderLog() {
   els.todaySummary.textContent = `${formatMinutes(totalMinutes(entries))} focused`;
 }
 
+/** Streak + the last 7 days as a small bar chart. */
+function renderWeek() {
+  const history = loadHistory();
+  const days = lastDays(history, 7);
+  const goal = timer.settings.dailyGoal;
+  const scale = Math.max(goal, ...days.map((d) => d.count));
+
+  const items = days.map((d) => {
+    const li = document.createElement('li');
+    li.dataset.today = String(d.isToday);
+    li.dataset.met = String(d.count >= goal);
+
+    const sr = document.createElement('span');
+    sr.className = 'visually-hidden';
+    sr.textContent = `${d.isToday ? 'Today' : d.weekday}: ${d.count} ${d.count === 1 ? 'session' : 'sessions'}`;
+
+    const count = document.createElement('span');
+    count.className = 'week__count';
+    count.setAttribute('aria-hidden', 'true');
+    count.textContent = d.count > 0 ? String(d.count) : '';
+
+    const bar = document.createElement('span');
+    bar.className = 'week__bar';
+    bar.setAttribute('aria-hidden', 'true');
+    const fill = document.createElement('span');
+    fill.style.height = `${Math.round((d.count / scale) * 100)}%`; // CSSOM, so a strict CSP is fine
+    bar.append(fill);
+
+    const label = document.createElement('span');
+    label.className = 'week__day';
+    label.setAttribute('aria-hidden', 'true');
+    label.textContent = d.isToday ? 'Today' : d.weekday;
+
+    li.append(sr, count, bar, label);
+    return li;
+  });
+  els.week.replaceChildren(...items);
+
+  const run = streak(history);
+  els.streak.textContent = run > 0 ? `🔥 ${run}-day streak` : 'No streak yet. Finish a session today!';
+  els.streak.classList.toggle('streak--on', run > 0);
+  const weekCount = days.reduce((sum, d) => sum + d.count, 0);
+  els.weekTotal.textContent = `${weekCount} ${weekCount === 1 ? 'session' : 'sessions'} this week`;
+}
+
 /** Favicon doubles as a tiny progress ring while a session is active. */
 function renderFavicon(s, progress) {
   if (!els.favicon) return;
@@ -200,11 +249,13 @@ function rollOverDay() {
   timer.resetCount();
   saveToday({ count: 0, entries });
   renderLog();
+  renderWeek();
   return true;
 }
 
 function persistToday() {
   saveToday({ count: timer.completedWork, entries });
+  renderWeek();
 }
 
 // ---- loop ------------------------------------------------------------------
@@ -232,18 +283,20 @@ timer.on('change', (s) => {
   s.status === STATUS.RUNNING ? startLoop() : stopLoop();
   lastAnnouncedMinute = null;
   render(s);
+  saveSession(timer.serialize()); // so a reload picks up where we left off
 });
 
-timer.on('complete', ({ finished, next, completedWork }) => {
+timer.on('complete', ({ finished, next, completedWork, endedAt }) => {
   // A session that finishes after midnight is the first one of the new day.
   if (rollOverDay() && finished === MODES.WORK) timer.completedWork = 1;
   if (finished === MODES.WORK) {
-    entries = addEntry(entries, { task, minutes: timer.settings.work, at: Date.now() });
+    entries = addEntry(entries, { task, minutes: timer.settings.work, at: endedAt });
     renderLog();
   }
   persistToday();
 
   if (timer.settings.sound) playChime(timer.settings.volume);
+  flourish();
 
   let message = `${MODE_LABELS[finished]} finished. Next: ${MODE_LABELS[next]}.`;
   if (finished === MODES.WORK && completedWork === timer.settings.dailyGoal) {
@@ -252,6 +305,12 @@ timer.on('complete', ({ finished, next, completedWork }) => {
   announce(message);
   notify(message, finished);
 });
+
+/** Brief glow on the dial when a session ends (CSS handles reduced motion). */
+function flourish() {
+  els.body.classList.add('pulse');
+  setTimeout(() => els.body.classList.remove('pulse'), 1200);
+}
 
 function notify(body, finished) {
   if (!timer.settings.notify || !document.hidden) return;
@@ -359,12 +418,37 @@ const fields = {
 };
 const NUMERIC_FIELDS = ['work', 'shortBreak', 'longBreak', 'longBreakInterval', 'dailyGoal'];
 
+const PRESETS = {
+  classic: { work: 25, shortBreak: 5, longBreak: 15, longBreakInterval: 4 },
+  deep: { work: 50, shortBreak: 10, longBreak: 30, longBreakInterval: 3 },
+  flow: { work: 90, shortBreak: 20, longBreak: 30, longBreakInterval: 2 },
+};
+
+/** Highlight the preset that matches the numbers currently in the form. */
+function syncPresetButtons() {
+  els.presets.forEach((btn) => {
+    const preset = PRESETS[btn.dataset.preset];
+    const match = Object.entries(preset).every(([key, value]) => Number(fields[key].value) === value);
+    btn.setAttribute('aria-pressed', String(match));
+  });
+}
+
+els.presets.forEach((btn) =>
+  btn.addEventListener('click', () => {
+    for (const [key, value] of Object.entries(PRESETS[btn.dataset.preset])) fields[key].value = value;
+    clearErrors();
+    syncPresetButtons();
+  }),
+);
+Object.keys(PRESETS.classic).forEach((key) => fields[key].addEventListener('input', syncPresetButtons));
+
 function fillForm(settings) {
   for (const [key, el] of Object.entries(fields)) {
     if (el.type === 'checkbox') el.checked = settings[key];
     else el.value = settings[key];
   }
   clearErrors();
+  syncPresetButtons();
 }
 
 function clearErrors() {
@@ -412,6 +496,7 @@ els.form.addEventListener('submit', async (e) => {
   }
   timer.updateSettings(next);
   saveSettings(timer.settings);
+  renderWeek(); // the daily goal changes what counts as a "met" day
   els.dialog.close();
 });
 
@@ -434,4 +519,14 @@ if ('serviceWorker' in navigator && (location.protocol === 'https:' || location.
 }
 
 renderLog();
+renderWeek();
 render();
+
+// Pick up a session that was running/paused before a reload. If it ended on an
+// earlier day we start fresh instead of crediting it to today.
+{
+  const savedSession = loadSession();
+  const endedBeforeToday =
+    savedSession?.status === STATUS.RUNNING && dayKey(new Date(savedSession.endAt)) !== currentDay;
+  timer.restore(endedBeforeToday ? { mode: savedSession.mode, status: STATUS.IDLE } : savedSession);
+}
