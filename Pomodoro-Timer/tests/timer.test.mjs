@@ -213,6 +213,13 @@ test('sanitizeSettings clamps and falls back to defaults', () => {
   assert.equal(s.volume, 1);
 });
 
+test('keepAwake defaults on and only accepts booleans', () => {
+  assert.equal(DEFAULT_SETTINGS.keepAwake, true);
+  assert.equal(sanitizeSettings({}).keepAwake, true);
+  assert.equal(sanitizeSettings({ keepAwake: false }).keepAwake, false);
+  assert.equal(sanitizeSettings({ keepAwake: 'no' }).keepAwake, true);
+});
+
 test('formatTime', () => {
   assert.equal(formatTime(25 * MIN), '25:00');
   assert.equal(formatTime(61_000), '01:01');

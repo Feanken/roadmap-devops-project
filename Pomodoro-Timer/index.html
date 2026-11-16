@@ -196,12 +196,13 @@
 
         <div class="card-body">
           <div class="segmented" role="group" aria-label="Session type">
-            <button type="button" class="segmented__btn mode" data-mode="work" aria-pressed="true">Work</button>
-            <button type="button" class="segmented__btn mode" data-mode="shortBreak" aria-pressed="false">Short Break</button>
-            <button type="button" class="segmented__btn mode" data-mode="longBreak" aria-pressed="false">Long Break</button>
+            <button type="button" class="segmented__btn mode" data-mode="work" aria-pressed="true" aria-keyshortcuts="1">Work</button>
+            <button type="button" class="segmented__btn mode" data-mode="shortBreak" aria-pressed="false" aria-keyshortcuts="2">Short Break</button>
+            <button type="button" class="segmented__btn mode" data-mode="longBreak" aria-pressed="false" aria-keyshortcuts="3">Long Break</button>
           </div>
 
           <div class="dial">
+            <div class="dial__breath" aria-hidden="true"></div>
             <div class="dial__vinyl" aria-hidden="true"></div>
             <svg class="dial__ring" viewBox="0 0 200 200" aria-hidden="true" focusable="false">
               <circle class="dial__track" cx="100" cy="100" r="90"/>
@@ -220,7 +221,8 @@
           <div class="task">
             <label for="task" class="visually-hidden">What are you focusing on?</label>
             <span class="task__prompt" aria-hidden="true">&gt;</span>
-            <input id="task" type="text" maxlength="60" autocomplete="off" spellcheck="false" enterkeyhint="go" placeholder="what are you focusing on?">
+            <input id="task" type="text" maxlength="60" autocomplete="off" spellcheck="false" enterkeyhint="go" list="task-suggestions" placeholder="what are you focusing on?">
+            <datalist id="task-suggestions"></datalist>
           </div>
 
           <div class="controls">
@@ -301,6 +303,8 @@
         <span class="footer__sep" aria-hidden="true">·</span>
         <kbd>S</kbd> skip
         <span class="footer__sep" aria-hidden="true">·</span>
+        <kbd>1</kbd><kbd>2</kbd><kbd>3</kbd> session
+        <span class="footer__sep" aria-hidden="true">·</span>
         <kbd>F</kbd> focus mode
       </p>
     </footer>
@@ -361,6 +365,11 @@
           <input id="s-notify" name="notify" type="checkbox" role="switch" class="switch" aria-describedby="notify-help">
         </div>
         <p id="notify-help" class="help">Only shown while this tab is in the background. Your browser will ask for permission.</p>
+        <div class="row">
+          <label for="s-awake">Keep the screen on while a session runs</label>
+          <input id="s-awake" name="keepAwake" type="checkbox" role="switch" class="switch" aria-describedby="awake-help">
+        </div>
+        <p id="awake-help" class="help">Not every browser supports this; it is ignored where unavailable.</p>
         <div class="row">
           <label for="s-sound">Play sound when a session ends</label>
           <input id="s-sound" name="sound" type="checkbox" role="switch" class="switch">

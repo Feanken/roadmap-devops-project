@@ -223,10 +223,54 @@ try {
   check('streak = 1 day', (await text('streak')).includes('1-day'), await text('streak'));
   check('week total', (await text('week-total')) === '1 session this week');
 
+  // ---- task suggestions, break halo, wake lock, mode shortcuts --------------------------------------
+  check('finished task is offered as a suggestion',
+    (await ev(`[...document.querySelectorAll('#task-suggestions option')].map((o) => o.value).join()`)) === 'write report');
+  check('and persisted', (await ev(`JSON.parse(localStorage.getItem('pomodoro.recentTasks.v1')).join()`)) === 'write report');
+
+  const haloAnimation = () => ev(`getComputedStyle(document.querySelector('.dial__breath')).animationName`);
+  check('breathing halo is still while the break has not started', (await haloAnimation()) === 'none');
+
+  const wakeLockSupported = await ev(`'wakeLock' in navigator`);
+  await ev(`(() => {
+    window.__wl = [];
+    if (!('wakeLock' in navigator)) return;
+    navigator.wakeLock.request = async (type) => {
+      window.__wl.push(type);
+      return { addEventListener() {}, release: async () => { window.__wl.push('release'); } };
+    };
+  })()`);
+  await click('#toggle'); // start the short break
+  await sleep(400);
+  check('breathing halo animates while a break runs', (await haloAnimation()) === 'breathe');
+  if (wakeLockSupported) {
+    check('screen wake lock requested while running', (await ev('window.__wl.join()')) === 'screen');
+    await click('#toggle'); // pause
+    await sleep(300);
+    check('screen wake lock released on pause', (await ev('window.__wl.join()')) === 'screen,release');
+  } else {
+    check('wake lock unsupported here: the timer still runs', (await ev('document.body.dataset.status')) === 'running');
+    await click('#toggle');
+    await sleep(200);
+  }
+  await click('#reset');
+  await sleep(200);
+
+  const press = (key) => ev(`document.dispatchEvent(new KeyboardEvent('keydown', { key: ${JSON.stringify(key)}, bubbles: true }))`);
+  await press('3');
+  await sleep(150);
+  check('key 3 selects Long Break', (await ev('document.body.dataset.mode')) === 'longBreak');
+  await press('1');
+  await sleep(150);
+  check('key 1 selects Work', (await ev('document.body.dataset.mode')) === 'work');
+  await ev(`document.getElementById('task').dispatchEvent(new KeyboardEvent('keydown', { key: '2', bubbles: true }))`);
+  await sleep(150);
+  check('digits typed in the task field do not switch session', (await ev('document.body.dataset.mode')) === 'work');
+
   // ---- settings: goal reached + validation -----------------------------------------------------
   await click('#open-settings');
   await sleep(500);
-  check('settings dialog open + filled', await ev(`document.getElementById('settings').open && document.getElementById('s-work').value === '25' && document.getElementById('s-goal').value === '8'`));
+  check('settings dialog open + filled', await ev(`document.getElementById('settings').open && document.getElementById('s-work').value === '25' && document.getElementById('s-goal').value === '8' && document.getElementById('s-awake').checked`));
   await shot('dialog', false);
   await ev(`document.getElementById('s-goal').value = '1'`);
   await click('#settings-form button[type=submit]');
@@ -250,6 +294,9 @@ try {
   await sleep(100);
   check('R resets session', (await ev('document.body.dataset.status')) === 'idle');
   await click('#reset-count');
+  check('Reset today asks for confirmation first',
+    (await ev(`document.getElementById('reset-count').dataset.armed`)) === 'true' && (await text('completed')) === '1');
+  await click('#reset-count');
   await sleep(200);
   check('reset today clears count, log and history',
     (await text('completed')) === '0' && (await ev(`document.querySelectorAll('#log li').length`)) === 0 &&
@@ -268,6 +315,7 @@ try {
   check('and logged', (await ev(`document.querySelectorAll('#log li').length`)) === 1);
   await ev(`localStorage.setItem('pomodoro.session.v1', JSON.stringify({ mode: 'work', status: 'running', remainingMs: 1000, endAt: Date.now() - 3 * 86400000 }))`);
   await click('#reset-count');
+  await click('#reset-count'); // armed, then confirmed
   await reload();
   check('a session from an earlier day is not credited to today', (await text('completed')) === '0');
 

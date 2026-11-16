@@ -28,6 +28,7 @@ export function initSettingsDialog({ timer, onSaved }) {
     dailyGoal: $('s-goal'),
     autoStart: $('s-auto'),
     notify: $('s-notify'),
+    keepAwake: $('s-awake'),
     sound: $('s-sound'),
     volume: $('s-volume'),
   };

@@ -19,6 +19,18 @@ export function addEntry(entries, { task, minutes, at }, max = 100) {
   return [...entries, { task: cleanTask(task), minutes: Math.max(0, Math.round(minutes)), at }].slice(-max);
 }
 
+/**
+ * Most-recently-used task labels: `task` goes to the front, a repeat (ignoring
+ * case) is moved rather than duplicated, and only the newest `max` are kept.
+ */
+export function rememberTask(recent, task, max = 8) {
+  const list = Array.isArray(recent) ? recent.map(cleanTask).filter(Boolean) : [];
+  const label = cleanTask(task);
+  if (!label) return list.slice(0, max);
+  const same = label.toLowerCase();
+  return [label, ...list.filter((t) => t.toLowerCase() !== same)].slice(0, max);
+}
+
 /** Only well-formed entries survive (storage may contain anything). */
 export function sanitizeEntries(raw) {
   if (!Array.isArray(raw)) return [];

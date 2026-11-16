@@ -22,6 +22,7 @@ export const DEFAULT_SETTINGS = Object.freeze({
   volume: 0.6, // 0..1
   dailyGoal: 8, // work sessions per day
   notify: false, // desktop notification when a session ends (opt-in)
+  keepAwake: true, // ask the screen not to sleep while a session is running
 });
 
 const LIMITS = {
@@ -42,6 +43,7 @@ export function sanitizeSettings(input = {}) {
   if (typeof input.autoStart === 'boolean') out.autoStart = input.autoStart;
   if (typeof input.sound === 'boolean') out.sound = input.sound;
   if (typeof input.notify === 'boolean') out.notify = input.notify;
+  if (typeof input.keepAwake === 'boolean') out.keepAwake = input.keepAwake;
   const v = Number(input.volume);
   if (Number.isFinite(v)) out.volume = Math.min(1, Math.max(0, v));
   return out;

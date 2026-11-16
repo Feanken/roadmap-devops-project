@@ -68,8 +68,9 @@ Pomodoro-Timer/
 │   ├── audio.js          # chime + ambience via Web Audio API
 │   ├── notify.js         # notifikasi desktop
 │   ├── favicon.js        # favicon ring progres
+│   ├── wake-lock.js      # layar tetap menyala selama sesi berjalan (opsional)
 │   ├── config.js, dom.js # konstanta dan helper DOM (setter berbasis diff)
-│   └── ui/               # timer-view, stats-view, controls, ambience, settings-dialog, focus-mode
+│   └── ui/               # timer-view, stats-view, controls, ambience, settings-dialog, focus-mode, task-suggest
 ├── manifest.webmanifest, sw.js, icon.svg, icon-512.png   # PWA
 ├── nginx/                # default.conf + security-headers.conf
 ├── tests/                # timer.test.mjs, log.test.mjs (unit), e2e.mjs (browser)
@@ -105,7 +106,7 @@ docker run -d --name pomodoro -p 8080:8080 lofi-pomodoro
 ```bash
 npm run check      # konsistensi statis
 npm test           # unit test (32)
-npm run test:e2e   # browser sungguhan (57), butuh server berjalan di E2E_URL (mis. npm start)
+npm run test:e2e   # browser sungguhan (67), butuh server berjalan di E2E_URL (mis. npm start)
 npm run verify     # check + test
 ```
 
@@ -143,12 +144,15 @@ Penyebabnya bukan JavaScript (hanya ~2 ms/detik), tetapi animasi yang berjalan d
 
 Angka ini mengukur kerja CPU main thread, bukan kelancaran di GPU sungguhan. Di perangkat nyata selisihnya bisa berbeda.
 
+Tambahan terbaru: layar tidak mati selama sesi berjalan (Screen Wake Lock, bisa dimatikan di Settings; diabaikan di browser yang tidak mendukung), halo "napas" 4 detik masuk / 4 detik keluar di sekitar piringan saat istirahat (hanya `transform` + `opacity`, mati di `prefers-reduced-motion`), dan daftar saran tugas dari 8 label terakhir lewat `<datalist>`.
+
 Perubahan lain: `<h1>` dan `color-scheme: dark` (kontrol bawaan browser ikut gelap), ikon sebagai sprite `<symbol>`, `<template>` untuk baris dinamis, token spasi/radius/permukaan, fallback hex untuk `color-mix()`, gaya hover hanya di perangkat yang punya hover, `prefers-contrast: more`, dan `text-wrap: balance/pretty`.
 
 ## Aksesibilitas
 
 - Semua kontrol adalah `<button>`/`<input>` native, bisa dioperasikan dengan keyboard; ada skip link dan fokus yang jelas.
-- Shortcut: `Space` start/stop, `R` reset, `S` skip (nonaktif saat mengetik atau dialog terbuka).
+- Shortcut: `Space` start/stop, `R` reset, `S` skip, `1`/`2`/`3` pilih Work/Short Break/Long Break, `F` focus mode (nonaktif saat mengetik atau dialog terbuka).
+- "Reset today" butuh ketukan kedua untuk konfirmasi (batal otomatis setelah 4 detik atau saat fokus pindah).
 - Display memakai `role="timer"`; perubahan sesi, sisa menit, dan tercapainya goal diumumkan lewat `aria-live="polite"` (tidak setiap detik).
 - Tombol mode, chip ambience, dan preset memakai `aria-pressed`; toggle memakai `role="switch"`; progress goal memakai `role="progressbar"`; dialog memakai `<dialog>` native.
 - Ilustrasi dan efek latar disembunyikan dari screen reader (`aria-hidden`).

@@ -4,7 +4,7 @@ import { STATUS } from '../timer.js';
 import { cleanTask } from '../log.js';
 import { saveTask } from '../storage.js';
 import { unlockAudio } from '../audio.js';
-import { $, qsa, shortcutsAllowed } from '../dom.js';
+import { $, qsa, shortcutsAllowed, announce } from '../dom.js';
 
 /**
  * @param {object} deps
@@ -22,8 +22,30 @@ export function initControls({ timer, state, onTaskChange, onResetToday }) {
   });
   $('reset').addEventListener('click', () => timer.reset());
   $('skip').addEventListener('click', () => timer.skip());
-  $('reset-count').addEventListener('click', onResetToday);
-  for (const button of qsa('.mode')) button.addEventListener('click', () => timer.setMode(button.dataset.mode));
+  const modeButtons = qsa('.mode');
+  for (const button of modeButtons) button.addEventListener('click', () => timer.setMode(button.dataset.mode));
+
+  // "Reset today" wipes the count and the log, so it needs a second, deliberate tap.
+  const resetCount = $('reset-count');
+  const resetLabel = resetCount.textContent;
+  let disarmTimer = null;
+  const disarm = () => {
+    clearTimeout(disarmTimer);
+    resetCount.textContent = resetLabel;
+    delete resetCount.dataset.armed;
+  };
+  resetCount.addEventListener('click', () => {
+    if (resetCount.dataset.armed) {
+      disarm();
+      onResetToday();
+      return;
+    }
+    resetCount.dataset.armed = 'true';
+    resetCount.textContent = 'Tap again to confirm';
+    announce('Tap again to confirm resetting today.');
+    disarmTimer = setTimeout(disarm, 4000);
+  });
+  resetCount.addEventListener('blur', disarm);
 
   task.value = state.task;
   task.addEventListener('input', () => {
@@ -43,6 +65,7 @@ export function initControls({ timer, state, onTaskChange, onResetToday }) {
 
     if (e.key === 'r' || e.key === 'R') timer.reset();
     else if (e.key === 's' || e.key === 'S') timer.skip();
+    else if (e.key >= '1' && e.key <= String(modeButtons.length)) modeButtons[Number(e.key) - 1].click();
     else if (e.key === ' ' && e.target.tagName !== 'BUTTON') {
       // On a focused button, Space already clicks it.
       e.preventDefault();

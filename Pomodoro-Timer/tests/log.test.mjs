@@ -2,7 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import {
   dayKey, cleanTask, addEntry, sanitizeEntries, goalProgress, totalMinutes, formatMinutes, formatClock,
-  shiftDay, sanitizeHistory, recordDay, lastDays, streak,
+  shiftDay, sanitizeHistory, recordDay, lastDays, streak, rememberTask,
 } from '../js/log.js';
 import { sanitizeSettings, DEFAULT_SETTINGS } from '../js/timer.js';
 
@@ -26,6 +26,16 @@ test('addEntry appends without mutating and keeps only the newest entries', () =
   let list = [];
   for (let i = 0; i < 5; i++) list = addEntry(list, { task: `t${i}`, minutes: 25, at: i }, 3);
   assert.deepEqual(list.map((e) => e.task), ['t2', 't3', 't4']);
+});
+
+test('rememberTask keeps a most-recent-first list without case-insensitive duplicates', () => {
+  assert.deepEqual(rememberTask([], 'write report'), ['write report']);
+  assert.deepEqual(rememberTask(['a', 'b'], 'c'), ['c', 'a', 'b']);
+  assert.deepEqual(rememberTask(['a', 'Write Report', 'b'], '  write   report '), ['write report', 'a', 'b']);
+  assert.deepEqual(rememberTask(['a', 'b', 'c'], 'd', 3), ['d', 'a', 'b']);
+  assert.deepEqual(rememberTask(['a', 'b'], ''), ['a', 'b'], 'an empty label changes nothing');
+  assert.deepEqual(rememberTask('garbage', 'x'), ['x']);
+  assert.deepEqual(rememberTask(['a', 5, null, '  '], ''), ['a', '5'], 'junk in storage is cleaned');
 });
 
 test('sanitizeEntries drops malformed data', () => {

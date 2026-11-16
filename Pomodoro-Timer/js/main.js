@@ -8,8 +8,10 @@
 import { PomodoroTimer, MODES, STATUS } from './timer.js';
 import {
   loadSettings, loadToday, saveToday, loadHistory, loadSession, saveSession, loadTask,
+  loadRecentTasks, saveRecentTasks,
 } from './storage.js';
-import { dayKey, addEntry } from './log.js';
+import { dayKey, addEntry, rememberTask } from './log.js';
+import { createWakeLock } from './wake-lock.js';
 import { playChime } from './audio.js';
 import { notifySessionEnd } from './notify.js';
 import { MODE_LABELS } from './config.js';
@@ -20,17 +22,25 @@ import { initControls } from './ui/controls.js';
 import { initAmbience } from './ui/ambience.js';
 import { initSettingsDialog } from './ui/settings-dialog.js';
 import { initFocusMode } from './ui/focus-mode.js';
+import { createTaskSuggestions } from './ui/task-suggest.js';
 
 // ---- state -------------------------------------------------------------------
 const saved = loadToday();
 const state = {
   entries: saved.entries, // today's finished work sessions
   task: loadTask(), // what the user says they are focusing on
+  recent: loadRecentTasks(), // most recently used task labels (suggestions)
   day: dayKey(), // the day `entries` belongs to
 };
 const timer = new PomodoroTimer({ settings: loadSettings(), completedWork: saved.count });
 const timerView = createTimerView();
 const stats = createStatsView();
+const suggestions = createTaskSuggestions();
+const wakeLock = createWakeLock();
+
+/** Keep the screen awake only while a session is actually counting down. */
+const syncWakeLock = (s = timer.snapshot()) =>
+  wakeLock.set(s.status === STATUS.RUNNING && timer.settings.keepAwake);
 
 // ---- rendering -----------------------------------------------------------------
 function renderStats(s = timer.snapshot()) {
@@ -89,6 +99,7 @@ timer.on('change', (s) => {
   if (s.status === STATUS.RUNNING) startLoop();
   else stopLoop();
   lastAnnouncedMinute = null;
+  syncWakeLock(s);
   renderAll(s);
   saveSession(timer.serialize()); // so a reload picks up where we left off
 });
@@ -99,6 +110,11 @@ timer.on('complete', ({ finished, next, completedWork, endedAt }) => {
   if (finished === MODES.WORK) {
     state.entries = addEntry(state.entries, { task: state.task, minutes: timer.settings.work, at: endedAt });
     stats.renderLog(state.entries);
+    if (state.task) {
+      state.recent = rememberTask(state.recent, state.task);
+      saveRecentTasks(state.recent);
+      suggestions.render(state.recent);
+    }
   }
   persistToday();
 
@@ -121,7 +137,7 @@ function flourish() {
 initControls({ timer, state, onTaskChange: () => renderAll(), onResetToday: resetToday });
 initAmbience();
 initFocusMode();
-initSettingsDialog({ timer, onSaved: renderWeek });
+initSettingsDialog({ timer, onSaved: () => { renderWeek(); syncWakeLock(); } });
 
 // Timers are throttled in background tabs, but the wall-clock engine stays
 // accurate: re-sync as soon as the tab is visible again.
@@ -138,6 +154,7 @@ if ('serviceWorker' in navigator && (location.protocol === 'https:' || location.
 
 // ---- first paint --------------------------------------------------------------------------------------
 stats.renderLog(state.entries);
+suggestions.render(state.recent);
 renderWeek();
 renderAll();
 

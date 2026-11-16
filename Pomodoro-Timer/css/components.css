@@ -61,6 +61,7 @@
     border: 0;
     cursor: pointer;
   }
+  .link-btn[data-armed] { color: var(--danger); text-decoration-style: wavy; }
 
   .controls { display: flex; align-items: center; justify-content: center; gap: var(--space-4); }
 
@@ -146,6 +147,27 @@
   }
   body[data-status="running"] .dial__vinyl { animation-play-state: running; }
   @keyframes spin { to { transform: rotate(360deg); } }
+
+  /*
+   * Breathing halo: during a break the glow behind the record swells for 4 s and
+   * relaxes for 4 s, a quiet cue to breathe slowly. It only animates while a break
+   * is running (and never under prefers-reduced-motion); transform + opacity only.
+   */
+  .dial__breath {
+    position: absolute;
+    inset: -7%;
+    border-radius: 50%;
+    background: radial-gradient(circle, var(--accent) 0 52%, transparent 70%);
+    opacity: 0;
+    pointer-events: none;
+  }
+  body:is([data-mode="shortBreak"], [data-mode="longBreak"])[data-status="running"] .dial__breath {
+    animation: breathe 8s ease-in-out infinite;
+  }
+  @keyframes breathe {
+    0%, 100% { transform: scale(0.86); opacity: 0.06; }
+    50% { transform: scale(1); opacity: 0.4; }
+  }
 
   .dial__ring { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; transform: rotate(-90deg); }
   .dial__track, .dial__progress { fill: none; stroke-width: 5; }

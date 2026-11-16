@@ -2,7 +2,7 @@
 // every access is guarded and the app keeps working without persistence.
 
 import {
-  dayKey, sanitizeEntries, cleanTask, sanitizeHistory, recordDay, totalMinutes,
+  dayKey, sanitizeEntries, cleanTask, rememberTask, sanitizeHistory, recordDay, totalMinutes,
 } from './log.js';
 
 const KEYS = {
@@ -13,6 +13,7 @@ const KEYS = {
   ambienceVolume: 'pomodoro.ambienceVolume.v1',
   task: 'pomodoro.task.v1',
   focus: 'pomodoro.focus.v1', // focus mode on/off
+  recentTasks: 'pomodoro.recentTasks.v1', // last few task labels, for the suggestion list
 };
 
 function read(key) {
@@ -62,5 +63,8 @@ export const saveAmbienceVolume = (v) => write(KEYS.ambienceVolume, v);
 export const loadFocusMode = () => read(KEYS.focus) === true;
 export const saveFocusMode = (on) => write(KEYS.focus, Boolean(on));
 
-export const loadTask =() => cleanTask(read(KEYS.task));
+export const loadRecentTasks = () => rememberTask(read(KEYS.recentTasks), '');
+export const saveRecentTasks = (list) => write(KEYS.recentTasks, rememberTask(list, ''));
+
+export const loadTask = () => cleanTask(read(KEYS.task));
 export const saveTask = (task) => write(KEYS.task, cleanTask(task));
