@@ -1,14 +1,18 @@
-## Project Devops
+Kumpulan proyek latihan DevOps dari roadmap.sh. Setiap folder berisi implementasi, catatan, dan kendala yang saya temui.
 
-1. **Server-Performance-Stats:** https://roadmap.sh/projects/server-stats
-2. **Log-Archive-Tool:** https://roadmap.sh/projects/log-archive-tool
-3. **NGINX-Log-Analyser:** https://roadmap.sh/projects/nginx-log-analyser
-4. **Github-Actions-Deployment:** https://roadmap.sh/projects/github-actions-deployment-workflow
-5. **SSH-Remote-Server-Setup:** https://roadmap.sh/projects/ssh-remote-server-setup
-6. **Static-Site-Server:** https://roadmap.sh/projects/static-site-server
-7. **Basic-DNS-Setup:** https://roadmap.sh/projects/basic-dn
-8. **Simple-Monitoring:** https://roadmap.sh/projects/simple-monitoring-dashboard
-9. **Dummy-Systemd-Service:** https://roadmap.sh/projects/dummy-systemd-service
-10. **Basic-Dockerfile:** https://roadmap.sh/projects/basic-dockerfile
-11. **Multi-Container-Application:** https://roadmap.sh/projects/multi-container-service
-12. **Pomodoro-Timer:** https://roadmap.sh/projects/pomodoro-timer
+## Daftar Proyek
+
+| # | Proyek | Folder | Ringkasan |
+|---|--------|--------|-----------|
+| 1 | Server Performance Stats | `server-performance-stats/` | Script untuk memantau CPU, memori, dan disk |
+| 2 | Log Archive Tool | `Log-Archive-Tool/` | Script untuk mengarsipkan dan mengompres log lama |
+| 3 | NGINX Log Analyser | `Nginx-log/` | Analisis log NGINX untuk ringkasan trafik |
+| 4 | GitHub Actions Deployment | `GitHub-Actions-Deployment/` | Workflow CI/CD yang otomatis deploy ke server |
+| 5 | SSH Remote Server Setup | `SSH-Remote-Server-Setup/` | Konfigurasi akses SSH aman dengan kunci |
+| 6 | Static Site Server | `Static-Site-Server/` | Menyajikan situs statis dengan web server |
+| 7 | Basic DNS Setup | `DNS-Basic-Setup/` | DNS authoritative server dengan BIND9 di Docker |
+| 8 | Simple Monitoring | `Simple-Monitoring/` | Dashboard monitoring sederhana |
+| 9 | Dummy Systemd Service | `Dummy-Systemd-Service/` | Service systemd sederhana yang dikelola otomatis |
+| 10 | Basic Dockerfile | `Basic-DockerFile/` | Membuat image Docker sendiri |
+| 11 | Multi-Container Application | `Multi-Container-Service/` | Beberapa container yang berjalan bersama |
+| 12 | Pomodoro Timer | `Pomodoro-Timer/` | Aplikasi timer Pomodoro, di-deploy ke web |
