@@ -1,0 +1,6 @@
+---
+- name: Test SSH key management
+  hosts: webservers
+  become: true
+  roles:
+    - ssh

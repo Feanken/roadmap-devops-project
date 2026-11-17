@@ -1,0 +1,27 @@
+---
+- name: Update apt package cache
+  ansible.builtin.apt:
+    update_cache: yes
+    cache_valid_time: 3600
+
+- name: Upgrade installed packages
+  ansible.builtin.apt:
+    upgrade: dist
+
+- name: Install basic utilities
+  ansible.builtin.apt:
+    name:
+      - curl
+      - wget
+      - git
+      - unzip
+      - htop
+      - vim
+      - fail2ban
+    state: present
+
+- name: Ensure Fail2ban is running
+  ansible.builtin.service:
+    name: fail2ban
+    state: started
+    enabled: yes

@@ -1,0 +1,6 @@
+---
+- name: Test application deployment
+  hosts: webservers
+  become: true
+  roles:
+    - app

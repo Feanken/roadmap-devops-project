@@ -1,0 +1,6 @@
+---
+- name: Add SSH public key for root user
+  ansible.posix.authorized_key:
+    user: root
+    state: present
+    key: "{{ lookup('file', 'roles/ssh/files/authorized_key.pub') }}"

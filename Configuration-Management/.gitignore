@@ -1,0 +1,10 @@
+# Local inventory with infrastructure details
+inventory.ini
+
+# Personal SSH public key
+roles/ssh/files/authorized_key.pub
+
+# Private SSH keys
+*.pem
+id_rsa
+id_ed25519
