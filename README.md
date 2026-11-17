@@ -1,18 +1,35 @@
-Kumpulan proyek latihan DevOps dari roadmap.sh. Setiap folder berisi implementasi, catatan, dan kendala yang saya temui.
+# DevOps Roadmap Projects
+
+Kumpulan proyek latihan DevOps dari [roadmap.sh](https://roadmap.sh/devops). Setiap folder berisi implementasi, dokumentasi, dan catatan pembelajaran.
 
 ## Daftar Proyek
 
-| # | Proyek | Folder | Ringkasan |
-|---|--------|--------|-----------|
-| 1 | Server Performance Stats | `server-performance-stats/` | Script untuk memantau CPU, memori, dan disk |
-| 2 | Log Archive Tool | `Log-Archive-Tool/` | Script untuk mengarsipkan dan mengompres log lama |
-| 3 | NGINX Log Analyser | `Nginx-log/` | Analisis log NGINX untuk ringkasan trafik |
-| 4 | GitHub Actions Deployment | `GitHub-Actions-Deployment/` | Workflow CI/CD yang otomatis deploy ke server |
-| 5 | SSH Remote Server Setup | `SSH-Remote-Server-Setup/` | Konfigurasi akses SSH aman dengan kunci |
-| 6 | Static Site Server | `Static-Site-Server/` | Menyajikan situs statis dengan web server |
-| 7 | Basic DNS Setup | `DNS-Basic-Setup/` | DNS authoritative server dengan BIND9 di Docker |
-| 8 | Simple Monitoring | `Simple-Monitoring/` | Dashboard monitoring sederhana |
-| 9 | Dummy Systemd Service | `Dummy-Systemd-Service/` | Service systemd sederhana yang dikelola otomatis |
-| 10 | Basic Dockerfile | `Basic-DockerFile/` | Membuat image Docker sendiri |
-| 11 | Multi-Container Application | `Multi-Container-Service/` | Beberapa container yang berjalan bersama |
-| 12 | Pomodoro Timer | `Pomodoro-Timer/` | Aplikasi timer Pomodoro, di-deploy ke web |
+| # | Proyek | Folder | Roadmap.sh |
+|---|---|---|---|
+| 1 | Server Performance Stats | `server-performance-stats/` | [Link](https://roadmap.sh/projects/server-stats) |
+| 2 | Log Archive Tool | `Log-Archive-Tool/` | [Link](https://roadmap.sh/projects/log-archive-tool) |
+| 3 | NGINX Log Analyser | `Nginx-log/` | [Link](https://roadmap.sh/projects/nginx-log-analyser) |
+| 4 | GitHub Actions Deployment | `GitHub-Actions-Deployment/` | [Link](https://roadmap.sh/projects/github-actions-deployment-workflow) |
+| 5 | SSH Remote Server Setup | `SSH-Remote-Server-Setup/` | [Link](https://roadmap.sh/projects/ssh-remote-server-setup) |
+| 6 | Static Site Server | `Static-Site-Server/` | [Link](https://roadmap.sh/projects/static-site-server) |
+| 7 | Basic DNS Setup | `DNS-Basic-Setup/` | [Link](https://roadmap.sh/projects/basic-dns) |
+| 8 | Simple Monitoring | `Simple-Monitoring/` | [Link](https://roadmap.sh/projects/simple-monitoring-dashboard) |
+| 9 | Dummy Systemd Service | `Dummy-Systemd-Service/` | [Link](https://roadmap.sh/projects/dummy-systemd-service) |
+| 10 | Basic Dockerfile | `Basic-DockerFile/` | [Link](https://roadmap.sh/projects/basic-dockerfile) |
+| 11 | Multi-Container Application | `Multi-Container-Service/` | [Link](https://roadmap.sh/projects/multi-container-service) |
+| 12 | Pomodoro Timer | `Pomodoro-Timer/` | [Link](https://roadmap.sh/projects/pomodoro-timer) |
+| 13 | Configuration Management | `Configuration-Management/` | [Link](https://roadmap.sh/projects/configuration-management) |
+
+## Technologies
+
+- Linux / Ubuntu
+- Bash Scripting
+- Git & GitHub
+- Docker & Docker Compose
+- GitHub Actions
+- Ansible
+- Nginx
+
+## Goal
+
+Build practical DevOps skills through hands-on projects, from Linux administration and automation to containerization, CI/CD, monitoring, and configuration management.

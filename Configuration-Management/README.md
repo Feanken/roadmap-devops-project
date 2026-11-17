@@ -152,3 +152,5 @@ This demonstrates Ansible idempotency: repeated execution does not produce unnec
 - Nginx
 - SSH
 - Git
+
+https://roadmap.sh/projects/configuration-management
