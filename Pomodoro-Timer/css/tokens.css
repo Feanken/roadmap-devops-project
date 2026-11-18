@@ -85,8 +85,8 @@
     --bg: #14283f; --bg-2: #234a6b; --bg-3: #091522; --accent: #8fd3ff; --accent-2: #7fa8ff; --skyline: #08111c;
     --panel: rgb(8 17 30 / 0.8); --panel-solid: #0f2036; --face: #1c3250;
   }
-  :root[data-theme="ocean"] body[data-mode="shortBreak"] { --bg: #1a3d44; --bg-2: #2a6670; --bg-3: #0a1d21; --accent: #9ff5d8; --accent-2: #6fd8e8; --skyline: #08181b; }
-  :root[data-theme="ocean"] body[data-mode="longBreak"]  { --bg: #2c3358; --bg-2: #4a5590; --bg-3: #121530; --accent: #c9c2ff; --accent-2: #8fb4ff; --skyline: #0b0d20; }
+  :root[data-theme="ocean"] body[data-mode="shortBreak"] { --bg: #1a3d44; --bg-2: #245a64; --bg-3: #0a1d21; --accent: #9ff5d8; --accent-2: #6fd8e8; --skyline: #08181b; }
+  :root[data-theme="ocean"] body[data-mode="longBreak"]  { --bg: #2c3358; --bg-2: #46508a; --bg-3: #121530; --accent: #c9c2ff; --accent-2: #8fb4ff; --skyline: #0b0d20; }
 
   /*
    * Colours derived from the palette. They live on <body> (not :root) because

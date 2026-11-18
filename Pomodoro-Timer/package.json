@@ -10,7 +10,7 @@
   "scripts": {
     "start": "node tools/serve.mjs",
     "check": "node tools/check.mjs",
-    "test": "node --test tests/timer.test.mjs tests/log.test.mjs tests/config.test.mjs",
+    "test": "node --test tests/timer.test.mjs tests/log.test.mjs tests/config.test.mjs tests/contrast.test.mjs",
     "test:e2e": "node tests/e2e.mjs",
     "verify": "npm run check && npm test"
   }

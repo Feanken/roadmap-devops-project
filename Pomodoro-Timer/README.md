@@ -74,7 +74,7 @@ Pomodoro-Timer/
 │   └── ui/               # timer-view, stats-view, controls, ambience, settings-dialog, focus-mode, task-suggest, summary
 ├── manifest.webmanifest, sw.js, icon.svg, icon-512.png   # PWA
 ├── nginx/                # default.conf + security-headers.conf
-├── tests/                # timer.test.mjs, log.test.mjs, config.test.mjs (unit), e2e.mjs (browser)
+├── tests/                # timer.test.mjs, log.test.mjs, config.test.mjs, contrast.test.mjs (unit), e2e.mjs (browser)
 ├── tools/                # serve.mjs (server dev), check.mjs (cek konsistensi)
 ├── package.json          # hanya script, tanpa dependensi
 ├── Dockerfile
@@ -154,6 +154,8 @@ Tombol "+5 min" di title bar (atau tombol `+`) menambah 5 menit ke sesi yang sed
 Saat target harian tercapai, 18 percikan (titik dan belah ketupat) memancar dari dial lalu hilang sendiri. Murni dekorasi: `transform` + `opacity`, digambar dengan CSS (tanpa glyph font), dan dilewati kalau `prefers-reduced-motion` aktif.
 
 Tema warna: Dusk (bawaan), Forest, dan Ocean, dipilih di Settings dan langsung berlaku. Tiap tema punya palet untuk Work, Short Break, dan Long Break (di `css/tokens.css`), dan warna `theme-color` browser serta favicon ikut berubah (`THEME_COLORS` di `js/config.js`). `js/theme-boot.js` menerapkannya sebelum paint pertama supaya tidak ada kedipan; `npm run check` memastikan setiap tema punya palet dan tombolnya.
+
+Kontras warna diuji otomatis (`tests/contrast.test.mjs`): untuk 3 tema x 3 sesi, teks krem dan teks redup harus >= 4,5:1 di atas gradien halaman, panel, dan wajah dial; teks aksen di panel >= 4,5:1; teks gelap di tombol aksen >= 4,5:1; ring progres, fokus, dan warna error >= 3:1 (WCAG 2.2 AA). Pengujian ini membaca `css/tokens.css` langsung, jadi tema baru ikut diperiksa tanpa menyalin warna.
 
 Panel Today: tombol × di tiap baris log untuk menghapus sesi yang salah catat (hitungan, riwayat, dan siklus ikut menyesuaikan) dan "Copy summary" yang menyalin rekap hari ini sebagai teks biasa ke clipboard (untuk catatan atau stand-up).
 
