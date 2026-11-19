@@ -5,6 +5,7 @@ provider "registry.terraform.io/huaweicloud/huaweicloud" {
   version = "1.100.0"
   hashes = [
     "h1:bnaOBLUMtE6S1mcOWhCw7mz9KnS5qRzb+INsvi5cYNA=",
+    "h1:jTJu4BCvhXEPsdKcWau3de5/95Saq83WeuZkLTdZcNY=",
     "zh:74f82db995933084032c9ff427bee85817dd48ae18e2599020398cc368c4e5d0",
     "zh:a1157314d33b6301ab4998d37209d9f2f9259daec18de5a31aa494abd93aab0b",
     "zh:ac19ef380ff7f69b5ff84d399dbdbde11698f1d5ce65a2060572348a006883f7",
