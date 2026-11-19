@@ -19,6 +19,7 @@ Kumpulan proyek latihan DevOps dari [roadmap.sh](https://roadmap.sh/devops). Set
 | 11 | Multi-Container Application | `Multi-Container-Service/` | [Link](https://roadmap.sh/projects/multi-container-service) |
 | 12 | Pomodoro Timer | `Pomodoro-Timer/` | [Link](https://roadmap.sh/projects/pomodoro-timer) |
 | 13 | Configuration Management | `Configuration-Management/` | [Link](https://roadmap.sh/projects/configuration-management) |
+| 14 | IaC on DigitalOcean | `IaC-On-DigitalOcean/` | [Link](https://roadmap.sh/projects/iac-digitalocean)
 
 ## Technologies
 
